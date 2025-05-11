@@ -4653,84 +4653,90 @@ async function updateWarpConfigs(request, env) {
 __name(updateWarpConfigs, "updateWarpConfigs");
 
 // src/pages/home.js
-async function renderHomePage(proxySettings, isPassSet) {
-  const {
-    remoteDNS,
-    localDNS,
-    CVLeeCTReeFakeDNS,
-    proxyIP,
-    outProxy,
-    cleanIPs,
-    enableIPv6,
-    customCdnAddrs,
-    customCdnHost,
-    customCdnSni,
-    bestCVLeeCTReeInterval,
-    CVLeeConfigs,
-    CTReeConfigs,
-    ports,
-    lengthMin,
-    lengthMax,
-    intervalMin,
-    intervalMax,
-    fragmentPackets,
-    warpEndpoints,
-    warpFakeDNS,
-    warpEnableIPv6,
-    warpPlusLicense,
-    bestWarpInterval,
-    hiddifyNoiseMode,
-    nikaNGNoiseMode,
-    noiseCountMin,
-    noiseCountMax,
-    noiseSizeMin,
-    noiseSizeMax,
-    noiseDelayMin,
-    noiseDelayMax,
-    bypassLAN,
-    bypassIran,
-    bypassChina,
-    bypassRussia,
-    blockAds,
-    blockPorn,
-    blockUDP443,
-    customBypassRules,
-    customBlockRules
-  } = proxySettings;
-  const isWarpPlus = warpPlusLicense ? true : false;
-  const activeProtocols = (CVLeeConfigs ? 1 : 0) + (CTReeConfigs ? 1 : 0);
-  let httpPortsBlock = "", httpsPortsBlock = "";
-  const allPorts = [...globalThis.hostName.includes("workers.dev") ? globalThis.defaultHttpPorts : [], ...globalThis.defaultHttpsPorts];
-  allPorts.forEach((port) => {
-    const id = `port-${port}`;
-    const isChecked = ports.includes(port) ? "checked" : "";
-    const portBlock = `
+export async function renderHomePage(proxySettings, isPassSet) {
+    const {
+        remoteDNS, 
+        localDNS,
+        VLTRFakeDNS, 
+        proxyIP, 
+        outProxy,
+        cleanIPs, 
+        enableIPv6,
+        customCdnAddrs,
+        customCdnHost,
+        customCdnSni,
+        bestVLTRInterval,
+        VLConfigs,
+        TRConfigs,
+        ports,
+        lengthMin, 
+        lengthMax, 
+        intervalMin, 
+        intervalMax,
+        fragmentPackets, 
+        warpEndpoints,
+        warpFakeDNS,
+        warpEnableIPv6,
+        warpPlusLicense,
+        bestWarpInterval,
+        hiddifyNoiseMode,
+        nikaNGNoiseMode,
+        noiseCountMin,
+        noiseCountMax,
+        noiseSizeMin,
+        noiseSizeMax,
+        noiseDelayMin,
+        noiseDelayMax,
+        bypassLAN,
+        bypassIran,
+        bypassChina,
+        bypassRussia,
+        blockAds, 
+        blockPorn,
+        blockUDP443,
+        customBypassRules,
+        customBlockRules
+    } = proxySettings;
+
+    const isWarpPlus = warpPlusLicense ? true : false;
+    const activeProtocols = (VLConfigs ? 1 : 0) + (TRConfigs ? 1 : 0);
+    let httpPortsBlock = '', httpsPortsBlock = '';
+    const allPorts = [...(globalThis.hostName.includes('workers.dev') ? globalThis.defaultHttpPorts : []), ...globalThis.defaultHttpsPorts];
+
+    allPorts.forEach(port => {
+        const id = `port-${port}`;
+        const isChecked = ports.includes(port) ? 'checked' : '';
+        const portBlock = `
             <div class="routing" style="grid-template-columns: 1fr 2fr; margin-right: 10px;">
                 <input type="checkbox" id=${id} name=${port} onchange="handlePortChange(event)" value="true" ${isChecked}>
                 <label style="margin-bottom: 3px;" for=${id}>${port}</label>
             </div>`;
-    globalThis.defaultHttpsPorts.includes(port) ? httpsPortsBlock += portBlock : httpPortsBlock += portBlock;
-  });
-  const supportedApps = /* @__PURE__ */ __name((apps) => apps.map((app) => `
-        <div>
-            <span class="material-symbols-outlined symbol">verified</span>
+        globalThis.defaultHttpsPorts.includes(port) ? httpsPortsBlock += portBlock : httpPortsBlock += portBlock;
+    });
+
+    const supportedApps = apps => apps.map(app => `
+        <div class="app-item">
+            <i class="bx bx-check-circle"></i>
             <span>${app}</span>
-        </div>`).join(""), "supportedApps");
-  const subQR = /* @__PURE__ */ __name((path, app, tag2, title, sbType) => {
-    const url = `${sbType ? "sing-box://import-remote-profile?url=" : ""}https://${globalThis.hostName}/${path}/${globalThis.subPath}${app ? `?app=${app}` : ""}#${tag2}`;
-    return `
-            <button onclick="openQR('${url}', '${title}')" style="margin-bottom: 8px;">
-                QR Code&nbsp;<span class="material-symbols-outlined">qr_code</span>
+        </div>`).join('');
+        
+    const subQR = (path, app, tag, title, sbType) => {
+        const url = `${sbType ? 'sing-box://import-remote-profile?url=' : ''}https://${globalThis.hostName}/${path}/${globalThis.subPath}${app ? `?app=${app}` : ''}#${tag}`;
+        return `
+            <button class="luxury-button qr-button" onclick="openQR('${url}', '${title}')">
+                QR Code <i class="bx bx-qr"></i>
             </button>`;
-  }, "subQR");
-  const subURL = /* @__PURE__ */ __name((path, app, tag2) => {
-    const url = `https://${globalThis.hostName}/${path}/${globalThis.subPath}${app ? `?app=${app}` : ""}#${tag2}`;
-    return `
-            <button onclick="copyToClipboard('${url}')">
-                Copy Sub<span class="material-symbols-outlined">format_list_bulleted</span>
+    };
+    
+    const subURL = (path, app, tag) => {
+        const url = `https://${globalThis.hostName}/${path}/${globalThis.subPath}${app ? `?app=${app}` : ''}#${tag}`;
+        return `
+            <button class="luxury-button copy-button" onclick="copyToClipboard('${url}')">
+                Copy Sub <i class="bx bx-copy"></i>
             </button>`;
-  }, "subURL");
-  const homePage = `
+    }
+
+    const homePage = `
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -4738,93 +4744,123 @@ async function renderHomePage(proxySettings, isPassSet) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="timestamp" content=${Date.now()}>
         <title>68 Panel ${globalThis.panelVersion}</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-        <title>Collapsible Sections</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+        <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Montserrat:wght@700&display=swap">
         <style>
             :root {
-                --color: black;
-                --primary-color: #09639f;
-                --secondary-color: #3498db;
-                --header-color: #09639f; 
-                --background-color: #fff;
-                --form-background-color: #f9f9f9;
+                --color: #333;
+                --primary-color: #d4af37;
+                --secondary-color: #b8860b;
+                --header-color: #d4af37;
+                --background-color: #e0e0e0;
+                --form-background-color: #e8e8e8;
                 --table-active-color: #f2f2f2;
                 --hr-text-color: #3b3b3b;
-                --lable-text-color: #333;
-                --border-color: #ddd;
-                --button-color: #09639f;
-                --input-background-color: white;
-                --header-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+                --label-text-color: #333;
+                --border-color: #ccc;
+                --button-color: #d4af37;
+                --input-background-color: #e0e0e0;
+                --header-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+                --gradient: linear-gradient(45deg, #d4af37, #b8860b);
             }
-            body { font-family: Twemoji Country Flags, system-ui; background-color: var(--background-color); color: var(--color) }
+            body {
+                font-family: 'Poppins', sans-serif;
+                background-color: var(--background-color);
+                color: var(--color);
+                margin: 0;
+                transition: all 0.3s ease;
+            }
             body.dark-mode {
                 --color: white;
-                --primary-color: #09639F;
-                --secondary-color: #3498DB;
-                --header-color: #3498DB; 
+                --primary-color: #f44336;
+                --secondary-color: #d32f2f;
+                --header-color: #f44336;
                 --background-color: #121212;
                 --form-background-color: #121212;
                 --table-active-color: #252525;
                 --hr-text-color: #D5D5D5;
-                --lable-text-color: #DFDFDF;
+                --label-text-color: #DFDFDF;
                 --border-color: #353535;
-                --button-color: #3498DB;
+                --button-color: #f44336;
                 --input-background-color: #252525;
                 --header-shadow: 2px 2px 4px rgba(255, 255, 255, 0.25);
+                --gradient: linear-gradient(45deg, #f44336, #d32f2f);
             }
-            .material-symbols-outlined {
-                margin-left: 5px;
-                font-variation-settings:
-                'FILL' 0,
-                'wght' 400,
-                'GRAD' 0,
-                'opsz' 24
-            }
-            details { border-bottom: 1px solid var(--border-color); }
-            summary {
-                font-weight: bold;
-                cursor: pointer;
+            h1 {
+                font-family: 'Montserrat', sans-serif;
+                font-size: 3em;
                 text-align: center;
-                text-wrap: nowrap;
+                color: var(--header-color);
+                text-shadow: var(--header-shadow);
+                background: var(--gradient);
+                padding: 20px;
+                border-radius: 15px;
+                margin: 20px auto;
+                max-width: 80%;
+                animation: pulse 2s infinite;
             }
-            summary::marker { font-size: 1.5rem; color: var(--secondary-color); }
-            summary h2 { display: inline-flex; }
-            h1 { font-size: 2.5em; text-align: center; color: var(--header-color); text-shadow: var(--header-shadow); }
-            h2,h3 { margin: 30px 0; text-align: center; color: var(--hr-text-color); }
-            hr { border: 1px solid var(--border-color); margin: 20px 0; }
-            .footer {
-                display: flex;
-                font-weight: 600;
-                margin: 10px auto 0 auto;
-                justify-content: center;
-                align-items: center;
+            h2, h3 {
+                font-family: 'Montserrat', sans-serif;
+                color: var(--hr-text-color);
+                text-align: center;
+                margin: 30px 0;
+                letter-spacing: 1px;
             }
-            .footer button {margin: 0 20px; background: #212121; max-width: fit-content;}
-            .footer button:hover, .footer button:focus { background: #3b3b3b;}
-            .form-control a, a.link { text-decoration: none; }
-            .form-control {
-                margin-bottom: 20px;
-                font-family: Arial, sans-serif;
-                display: flex;
-                flex-direction: column;
+            hr {
+                border: 1px solid var(--border-color);
+                margin: 20px 0;
+                border-radius: 5px;
             }
-            .form-control button {
-                background-color: var(--form-background-color);
+            .form-container {
+                max-width: 80%;
+                margin: 40px auto;
+                padding: 30px;
+                background: var(--form-background-color);
+                border-radius: 20px;
+                box-shadow: var(--header-shadow);
+                transition: transform 0.3s ease;
+            }
+            .form-container:hover {
+                transform: translateY(-5px);
+            }
+            .luxury-button {
+                background: var(--gradient);
+                color: #fff;
+                border: none;
+                padding: 12px 20px;
                 font-size: 1.1rem;
                 font-weight: 600;
-                color: var(--button-color);
-                border-color: var(--primary-color);
-                border: 1px solid;
+                border-radius: 10px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                transition: all 0.3s ease;
             }
-            #apply {display: block; margin-top: 20px;}
-            input.button {font-weight: 600; padding: 15px 0; font-size: 1.1rem;}
-            label {
-                display: block;
-                margin-bottom: 5px;
-                font-size: 110%;
+            .luxury-button:hover {
+                transform: scale(1.05);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+                background: linear-gradient(45deg, #b8860b, #d4af37);
+            }
+            .luxury-button:active {
+                transform: scale(0.95);
+            }
+            .form-control {
+                margin-bottom: 25px;
+                position: relative;
+            }
+            .form-control label {
                 font-weight: 600;
-                color: var(--lable-text-color);
+                color: var(--label-text-color);
+                position: absolute;
+                top: -10px;
+                left: 15px;
+                background: var(--form-background-color);
+                padding: 0 5px;
+                font-size: 0.9rem;
+                transition: all 0.3s ease;
             }
             input[type="text"],
             input[type="number"],
@@ -4832,317 +4868,232 @@ async function renderHomePage(proxySettings, isPassSet) {
             textarea,
             select {
                 width: 100%;
-                text-align: center;
-                padding: 10px;
+                padding: 12px;
                 border: 1px solid var(--border-color);
-                border-radius: 5px;
-                font-size: 16px;
-                color: var(--lable-text-color);
+                border-radius: 10px;
+                font-size: 1rem;
+                color: var(--label-text-color);
                 background-color: var(--input-background-color);
-                box-sizing: border-box;
-                transition: border-color 0.3s ease;
-            }	
+                transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            }
             input[type="text"]:focus,
             input[type="number"]:focus,
             input[type="url"]:focus,
             textarea:focus,
-            select:focus { border-color: var(--secondary-color); outline: none; }
-            .button,
-            table button {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                white-space: nowrap;
-                padding: 10px 15px;
-                font-size: 16px;
-                font-weight: 600;
-                letter-spacing: 1px;
-                border: none;
-                border-radius: 5px;
-                color: white;
-                background-color: var(--primary-color);
-                cursor: pointer;
+            select:focus {
+                border-color: var(--secondary-color);
+                box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
                 outline: none;
-                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-                transition: all 0.3s ease;
             }
-            input[type="checkbox"] { 
-                background-color: var(--input-background-color);
-                style="margin: 0; 
-                grid-column: 2;"
+            .table-container {
+                margin-top: 20px;
+                overflow-x: auto;
             }
-            table button { margin: auto; width: auto; }
-            .button.disabled {
-                background-color: #ccc;
-                cursor: not-allowed;
-                box-shadow: none;
-                pointer-events: none;
-            }
-            .button:hover,
-            table button:hover,
-            table button:focus {
-                background-color: #2980b9;
-                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-                transform: translateY(-2px);
-            }
-            .header-container button:hover {
-                transform: scale(1.1);
-            }
-            button.button:hover { color: white; }
-            .button:active,
-            table button:active { transform: translateY(1px); box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3); }
-            .form-container {
-                max-width: 90%;
-                margin: 0 auto;
-                padding: 20px;
-                background: var(--form-background-color);
-                border: 1px solid var(--border-color);
-                border-radius: 10px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                margin-bottom: 100px;
-            }
-            .table-container { margin-top: 20px; overflow-x: auto; }
-            table { 
+            table {
                 width: 100%;
-                border: 1px solid var(--border-color);
                 border-collapse: separate;
-                border-spacing: 0; 
-                border-radius: 10px;
-                margin-bottom: 20px;
+                border-spacing: 0;
+                border-radius: 15px;
                 overflow: hidden;
+                box-shadow: var(--header-shadow);
+                background: var(--form-background-color);
             }
-            th, td { padding: 10px; border-bottom: 1px solid var(--border-color); }
-            td div { display: flex; align-items: center; }
-            th { background-color: var(--secondary-color); color: white; font-weight: bold; font-size: 1.1rem; width: 50%;}
-            td:last-child { background-color: var(--table-active-color); }               
-            tr:hover { background-color: var(--table-active-color); }
-            .modal {
-                display: none;
-                position: fixed;
-                z-index: 1;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                overflow: auto;
-                background-color: rgba(0, 0, 0, 0.4);
+            th, td {
+                padding: 15px;
+                border-bottom: 1px solid var(--border-color);
+                text-align: center;
+            }
+th {
+                background: var(--gradient);
+                color: #fff;
+                font-weight: 700;
+                font-size: 1.2rem;
+            }
+            tr:hover {
+                background-color: var(--table-active-color);
+                transition: background-color 0.3s ease;
             }
             .modal-content {
-                background-color: var(--form-background-color);
-                margin: auto;
-                padding: 10px 20px 20px;
-                border: 1px solid var(--border-color);
-                border-radius: 10px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                width: 80%;
+                background: var(--form-background-color);
+                padding: 20px;
+                border-radius: 20px;
+                box-shadow: var(--header-shadow);
+                width: 90%;
+                max-width: 500px;
                 position: absolute;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
             }
-            .close { color: var(--color); float: right; font-size: 28px; font-weight: bold; }
-            .close:hover,
-            .close:focus { color: black; text-decoration: none; cursor: pointer; }
-            .form-control label {
-                display: block;
-                margin-bottom: 8px;
-                font-size: 110%;
+            .floating-button {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                background: var(--gradient);
+                color: #fff;
+                border: none;
+                border-radius: 50%;
+                width: 70px;
+                height: 70px;
+                font-size: 1.5rem;
+                cursor: pointer;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                transition: all 0.3s ease;
+            }
+            .floating-button:hover {
+                transform: scale(1.1);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            }
+            .footer {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+                background: var(--gradient);
+                border-radius: 15px;
+                margin: 20px auto;
+                max-width: 80%;
+                box-shadow: var(--header-shadow);
+            }
+            .footer a, .footer button {
+                margin: 0 15px;
+                color: #fff;
                 font-weight: 600;
-                color: var(--lable-text-color);
-                line-height: 1.3em;
             }
-            .form-control input[type="password"] {
-                width: 100%;
-                padding: 10px;
-                border: 1px solid var(--border-color);
-                border-radius: 5px;
-                font-size: 16px;
-                color: var(--lable-text-color);
-                background-color: var(--input-background-color);
-                box-sizing: border-box;
-                margin-bottom: 15px;
-                transition: border-color 0.3s ease;
+            .app-item {
+                display: flex;
+                align-items: center;
+                margin: 5px 0;
+                font-size: 0.9rem;
             }
-            .routing { 
+            .app-item i {
+                margin-right: 8px;
+                color: var(--secondary-color);
+            }
+            .routing {
                 display: grid;
-                justify-content: flex-start;
                 grid-template-columns: 1fr 1fr 10fr 1fr;
                 margin-bottom: 15px;
             }
-            .form-control .routing input { grid-column: 2 / 3; }
-            #routing-rules.form-control { display: grid; grid-template-columns: 1fr 1fr; }
-            .routing label {
-                text-align: left;
-                margin: 0 0 0 10px;
-                font-weight: 400;
-                font-size: 100%;
-                text-wrap: nowrap;
+            .modalQR .modal-content {
+                width: auto;
+                text-align: center;
+                background: var(--form-background-color);
+                border-radius: 20px;
+                padding: 20px;
             }
-            .form-control input[type="password"]:focus { border-color: var(--secondary-color); outline: none; }
-            #passwordError { color: red; margin-bottom: 10px; }
-            .symbol { margin-right: 8px; }
-            .modalQR {
-                display: none;
-                position: fixed;
-                z-index: 1;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                overflow: auto;
-                background-color: rgba(0, 0, 0, 0.4);
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.02); }
+                100% { transform: scale(1); }
             }
-            .floating-button {
-                position: fixed;
-                bottom: 20px;
-                left: 20px;
-                background-color: var(--color);
-                color: white;
-                border: none;
-                border-radius: 50%;
-                width: 60px;
-                height: 60px;
-                font-size: 24px;
-                cursor: pointer;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-                transition: background-color 0.3s, transform 0.3s;
-            }
-            .floating-button:hover { transform: scale(1.1); }
-            .min-max { display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline; width: 100%; }
-            .min-max span { text-align: center; white-space: pre; }
-            .input-with-select { width: 100%; }
-            body.dark-mode .floating-button { background-color: var(--color); }
-            body.dark-mode .floating-button:hover { transform: scale(1.1); }
-            #ips th { background-color: var(--hr-text-color); color: var(--background-color); width: unset; }
-            #ips td { background-color: unset; }
-            #ips td:first-child { background-color: var(--table-active-color); }
-            .header-container { display: flex; align-items: center; justify-content: center; }
             @media only screen and (min-width: 768px) {
-                .form-container { max-width: 70%; }
-                .form-control { 
-                    margin-bottom: 15px;
+                .form-container { max-width: 60%; }
+                .form-control {
                     display: grid;
                     grid-template-columns: 1fr 1fr;
                     align-items: baseline;
-                    justify-content: flex-end;
-                    font-family: Arial, sans-serif;
                 }
-                #apply { display: block; margin: 20px auto 0 auto; max-width: 50%; }
-                .modal-content { width: 30% }
-                .routing { display: grid; grid-template-columns: 4fr 1fr 3fr 4fr; }
+                .modal-content { width: 40%; }
             }
         </style>
     </head>
     <body>
-        <h1>68 Panel <span style="font-size: smaller;">${globalThis.panelVersion}</span> \u{1F4AA} ArsenVPN68 </h1>
+        <h1>68 Panel <span style="font-size: smaller;">${globalThis.panelVersion}</span> <i class="bx bx-diamond"></i></h1>
         <div class="form-container">
             <form id="configForm">
                 <details open>
-                    <summary><h2>${atob("VkxFU1M=")} - ${atob("VFJPSkFO")} \u2699\uFE0F</h2></summary>
+                    <summary><h2>VLESS - TROJAN <i class="bx bx-cog"></i></h2></summary>
                     <div class="form-control">
-                        <label for="remoteDNS">\u{1F30F} Remote DNS</label>
+                        <label for="remoteDNS">Remote DNS</label>
                         <input type="url" id="remoteDNS" name="remoteDNS" value="${remoteDNS}" required>
                     </div>
                     <div class="form-control">
-                        <label for="localDNS">\u{1F3DA}\uFE0F Local DNS</label>
-                        <input type="text" id="localDNS" name="localDNS" value="${localDNS}"
-                            pattern="^(?:\\d{1,3}\\.){3}\\d{1,3}$"
-                            title="Please enter a valid DNS IP Address!"  required>
+                        <label for="localDNS">Local DNS</label>
+                        <input type="text" id="localDNS" name="localDNS" value="${localDNS}" pattern="^(?:\\d{1,3}\\.){3}\\d{1,3}$" required>
                     </div>
                     <div class="form-control">
-                        <label for="CVLeeCTReeFakeDNS">\u{1F9E2} Fake DNS</label>
-                        <div class="input-with-select">
-                            <select id="CVLeeCTReeFakeDNS" name="CVLeeCTReeFakeDNS">
-                                <option value="true" ${CVLeeCTReeFakeDNS ? "selected" : ""}>Enabled</option>
-                                <option value="false" ${!CVLeeCTReeFakeDNS ? "selected" : ""}>Disabled</option>
-                            </select>
-                        </div>
+                        <label for="VLTRFakeDNS">Fake DNS</label>
+                        <select id="VLTRFakeDNS" name="VLTRFakeDNS">
+                            <option value="true" ${VLTRFakeDNS ? 'selected' : ''}>Enabled</option>
+                            <option value="false" ${!VLTRFakeDNS ? 'selected' : ''}>Disabled</option>
+                        </select>
                     </div>
                     <div class="form-control">
-                        <label for="proxyIP">\u{1F4CD} Proxy IPs / Domains</label>
+                        <label for="proxyIP">Proxy IPs / Domains</label>
                         <input type="text" id="proxyIP" name="proxyIP" value="${proxyIP.replaceAll(",", " , ")}">
                     </div>
                     <div class="form-control">
-                        <label for="outProxy">\u2708\uFE0F Chain Proxy</label>
+                        <label for="outProxy">Chain Proxy</label>
                         <input type="text" id="outProxy" name="outProxy" value="${outProxy}">
                     </div>
                     <div class="form-control">
-                        <label for="cleanIPs">\u2728 Clean IPs / Domains</label>
+                        <label for="cleanIPs">Clean IPs / Domains</label>
                         <input type="text" id="cleanIPs" name="cleanIPs" value="${cleanIPs.replaceAll(",", " , ")}">
                     </div>
                     <div class="form-control">
-                        <label for="scanner">\u{1F50E} Clean IP Scanner</label>
-                        <a href="https://github.com/bia-pain-bache/Cloudflare-Clean-IP-Scanner/releases/tag/v2.2.5" name="scanner" target="_blank" style="width: 100%;">
-                            <button type="button" id="scanner" class="button">
-                                Download Scanner
-                                <span class="material-symbols-outlined">open_in_new</span>
-                            </button>
+                        <label for="scanner">Clean IP Scanner</label>
+                        <a href="https://github.com/bia-pain-bache/Cloudflare-Clean-IP-Scanner/releases/tag/v2.2.5" target="_blank">
+                            <button type="button" class="luxury-button">Download Scanner <i class="bx bx-download"></i></button>
                         </a>
                     </div>
                     <div class="form-control">
-                        <label for="enableIPv6">\u{1F51B} IPv6</label>
-                        <div class="input-with-select">
-                            <select id="enableIPv6" name="enableIPv6">
-                                <option value="true" ${enableIPv6 ? "selected" : ""}>Enabled</option>
-                                <option value="false" ${!enableIPv6 ? "selected" : ""}>Disabled</option>
-                            </select>
-                        </div>
+                        <label for="enableIPv6">IPv6</label>
+                        <select id="enableIPv6" name="enableIPv6">
+                            <option value="true" ${enableIPv6 ? 'selected' : ''}>Enabled</option>
+                            <option value="false" ${!enableIPv6 ? 'selected' : ''}>Disabled</option>
+                        </select>
                     </div>
                     <div class="form-control">
-                        <label for="customCdnAddrs">\u{1F480} Custom CDN Addrs</label>
+                        <label for="customCdnAddrs">Custom CDN Addrs</label>
                         <input type="text" id="customCdnAddrs" name="customCdnAddrs" value="${customCdnAddrs.replaceAll(",", " , ")}">
                     </div>
                     <div class="form-control">
-                        <label for="customCdnHost">\u{1F480} Custom CDN Host</label> 
+                        <label for="customCdnHost">Custom CDN Host</label>
                         <input type="text" id="customCdnHost" name="customCdnHost" value="${customCdnHost}">
                     </div>
                     <div class="form-control">
-                        <label for="customCdnSni">\u{1F480} Custom CDN SNI</label>
+                        <label for="customCdnSni">Custom CDN SNI</label>
                         <input type="text" id="customCdnSni" name="customCdnSni" value="${customCdnSni}">
                     </div>
                     <div class="form-control">
-                        <label for="bestCVLeeCTReeInterval">\u{1F504} Best Interval</label>
-                        <input type="number" id="bestCVLeeCTReeInterval" name="bestCVLeeCTReeInterval" min="10" max="90" value="${bestCVLeeCTReeInterval}">
+                        <label for="bestVLTRInterval">Best Interval</label>
+                        <input type="number" id="bestVLTRInterval" name="bestVLTRInterval" min="10" max="90" value="${bestVLTRInterval}">
                     </div>
                     <div class="form-control" style="padding-top: 10px;">
-                        <label for="CVLeeConfigs">\u2699\uFE0F Protocols</label>
-                        <div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; align-items: baseline; margin-top: 10px;">
-                            <div style = "display: flex; justify-content: center; align-items: center;">
-                                <input type="checkbox" id="CVLeeConfigs" name="CVLeeConfigs" onchange="handleProtocolChange(event)" value="true" ${CVLeeConfigs ? "checked" : ""}>
-                                <label for="CVLeeConfigs" style="margin: 0 5px; font-weight: normal; font-size: unset;">${atob("VkxFU1M=")}</label>
+                        <label for="VLConfigs">Protocols</label>
+                        <div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr;">
+                            <div style="display: flex; justify-content: center; align-items: center;">
+                                <input type="checkbox" id="VLConfigs" name="VLConfigs" onchange="handleProtocolChange(event)" value="true" ${VLConfigs ? 'checked' : ''}>
+                                <label for="VLConfigs" style="margin: 0 5px; font-weight: normal;">VLESS</label>
                             </div>
-                            <div style = "display: flex; justify-content: center; align-items: center;">
-                                <input type="checkbox" id="CTReeConfigs" name="CTReeConfigs" onchange="handleProtocolChange(event)" value="true" ${CTReeConfigs ? "checked" : ""}>
-                                <label for="CTReeConfigs" style="margin: 0 5px; font-weight: normal; font-size: unset;">${atob("VHJvamFu")}</label>
+                            <div style="display: flex; justify-content: center; align-items: center;">
+                                <input type="checkbox" id="TRConfigs" name="TRConfigs" onchange="handleProtocolChange(event)" value="true" ${TRConfigs ? 'checked' : ''}>
+                                <label for="TRConfigs" style="margin: 0 5px; font-weight: normal;">Trojan</label>
                             </div>
                         </div>
                     </div>
                     <div class="table-container">
                         <table id="ports-block">
                             <tr>
-                                <th style="text-wrap: nowrap; background-color: gray;">Config type</th>
-                                <th style="text-wrap: nowrap; background-color: gray;">Ports</th>
+                                <th>Config type</th>
+                                <th>Ports</th>
                             </tr>
                             <tr>
-                                <td style="text-align: center; font-size: larger;"><b>TLS</b></td>
-                                <td>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;">${httpsPortsBlock}</div>
-                                </td>    
+                                <td><b>TLS</b></td>
+                                <td><div style="display: grid; grid-template-columns: repeat(4, 1fr);">${httpsPortsBlock}</div></td>
                             </tr>
-                            ${!httpPortsBlock ? "" : `<tr>
-                                <td style="text-align: center; font-size: larger;"><b>Non TLS</b></td>
-                                <td>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;">${httpPortsBlock}</div>
-                                </td>    
-                            </tr>`}        
+                            ${!httpPortsBlock ? '' : `<tr>
+                                <td><b>Non TLS</b></td>
+                                <td><div style="display: grid; grid-template-columns: repeat(4, 1fr);">${httpPortsBlock}</div></td>
+                            </tr>`}
                         </table>
                     </div>
                 </details>
                 <details>
-                    <summary><h2>FRAGMENT \u2699\uFE0F</h2></summary>	
+                    <summary><h2>FRAGMENT <i class="bx bx-fragment"></i></h2></summary>
                     <div class="form-control">
-                        <label for="fragmentLengthMin">\u{1F4D0} Length</label>
+                        <label for="fragmentLengthMin">Length</label>
                         <div class="min-max">
                             <input type="number" id="fragmentLengthMin" name="fragmentLengthMin" value="${lengthMin}" min="10" required>
                             <span> - </span>
@@ -5150,175 +5101,153 @@ async function renderHomePage(proxySettings, isPassSet) {
                         </div>
                     </div>
                     <div class="form-control">
-                        <label for="fragmentIntervalMin">\u{1F55E} Interval</label>
+                        <label for="fragmentIntervalMin">Interval</label>
                         <div class="min-max">
-                            <input type="number" id="fragmentIntervalMin" name="fragmentIntervalMin"
-                                value="${intervalMin}" min="1" max="30" required>
+                            <input type="number" id="fragmentIntervalMin" name="fragmentIntervalMin" value="${intervalMin}" min="1" max="30" required>
                             <span> - </span>
-                            <input type="number" id="fragmentIntervalMax" name="fragmentIntervalMax"
-                                value="${intervalMax}" min="1" max="30" required>
+                            <input type="number" id="fragmentIntervalMax" name="fragmentIntervalMax" value="${intervalMax}" min="1" max="30" required>
                         </div>
                     </div>
                     <div class="form-control">
-                        <label for="fragmentPackets">\u{1F4E6} Packets</label>
-                        <div class="input-with-select">
-                            <select id="fragmentPackets" name="fragmentPackets">
-                                <option value="tlshello" ${fragmentPackets === "tlshello" ? "selected" : ""}>tlshello</option>
-                                <option value="1-1" ${fragmentPackets === "1-1" ? "selected" : ""}>1-1</option>
-                                <option value="1-2" ${fragmentPackets === "1-2" ? "selected" : ""}>1-2</option>
-                                <option value="1-3" ${fragmentPackets === "1-3" ? "selected" : ""}>1-3</option>
-                                <option value="1-5" ${fragmentPackets === "1-5" ? "selected" : ""}>1-5</option>
-                            </select>
-                        </div>
+                        <label for="fragmentPackets">Packets</label>
+                        <select id="fragmentPackets" name="fragmentPackets">
+                            <option value="tlshello" ${fragmentPackets === 'tlshello' ? 'selected' : ''}>tlshello</option>
+                            <option value="1-1" ${fragmentPackets === '1-1' ? 'selected' : ''}>1-1</option>
+                            <option value="1-2" ${fragmentPackets === '1-2' ? 'selected' : ''}>1-2</option>
+                            <option value="1-3" ${fragmentPackets === '1-3' ? 'selected' : ''}>1-3</option>
+                            <option value="1-5" ${fragmentPackets === '1-5' ? 'selected' : ''}>1-5</option>
+                        </select>
                     </div>
                 </details>
                 <details>
-                    <summary><h2>WARP GENERAL \u2699\uFE0F</h2></summary>
+                    <summary><h2>WARP GENERAL <i class="bx bx-cloud"></i></h2></summary>
                     <div class="form-control">
-                        <label for="warpEndpoints">\u2728 Endpoints</label>
+                        <label for="warpEndpoints">Endpoints</label>
                         <input type="text" id="warpEndpoints" name="warpEndpoints" value="${warpEndpoints.replaceAll(",", " , ")}" required>
                     </div>
                     <div class="form-control">
-                        <label for="endpointScanner" style="line-height: 1.5;">\u{1F50E} Scan Endpoint</label>
-                        <button type="button" id="endpointScanner" class="button" style="padding: 10px 0;" onclick="copyToClipboard('bash <(curl -fsSL https://raw.githubusercontent.com/bia-pain-bache/warp-script/refs/heads/main/endip/install.sh)', false)">
-                            Copy Script<span class="material-symbols-outlined">terminal</span>
+                        <label for="endpointScanner">Scan Endpoint</label>
+                        <button type="button" class="luxury-button" onclick="copyToClipboard('bash <(curl -fsSL https://raw.githubusercontent.com/bia-pain-bache/warp-script/refs/heads/main/endip/install.sh)', false)">
+                            Copy Script <i class="bx bx-terminal"></i>
                         </button>
                     </div>
                     <div class="form-control">
-                        <label for="warpFakeDNS">\u{1F9E2} Fake DNS</label>
-                        <div class="input-with-select">
-                            <select id="warpFakeDNS" name="warpFakeDNS">
-                                <option value="true" ${warpFakeDNS ? "selected" : ""}>Enabled</option>
-                                <option value="false" ${!warpFakeDNS ? "selected" : ""}>Disabled</option>
-                            </select>
-                        </div>
+                        <label for="warpFakeDNS">Fake DNS</label>
+                        <select id="warpFakeDNS" name="warpFakeDNS">
+                            <option value="true" ${warpFakeDNS ? 'selected' : ''}>Enabled</option>
+                            <option value="false" ${!warpFakeDNS ? 'selected' : ''}>Disabled</option>
+                        </select>
                     </div>
                     <div class="form-control">
-                        <label for="warpEnableIPv6">\u{1F51B} IPv6</label>
-                        <div class="input-with-select">
-                            <select id="warpEnableIPv6" name="warpEnableIPv6">
-                                <option value="true" ${warpEnableIPv6 ? "selected" : ""}>Enabled</option>
-                                <option value="false" ${!warpEnableIPv6 ? "selected" : ""}>Disabled</option>
-                            </select>
-                        </div>
+                        <label for="warpEnableIPv6">IPv6</label>
+                        <select id="warpEnableIPv6" name="warpEnableIPv6">
+                            <option value="true" ${warpEnableIPv6 ? 'selected' : ''}>Enabled</option>
+                            <option value="false" ${!warpEnableIPv6 ? 'selected' : ''}>Disabled</option>
+                        </select>
                     </div>
                     <div class="form-control">
-                        <label for="warpPlusLicense">\u2795 Warp+ License</label>
-                        <input type="text" id="warpPlusLicense" name="warpPlusLicense" value="${warpPlusLicense}" 
-                            pattern="^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{8}-[a-zA-Z0-9]{8}$" 
-                            title="Please enter a valid Warp Plus license in xxxxxxxx-xxxxxxxx-xxxxxxxx format">
+                        <label for="warpPlusLicense">Warp+ License</label>
+                        <input type="text" id="warpPlusLicense" name="warpPlusLicense" value="${warpPlusLicense}" pattern="^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{8}-[a-zA-Z0-9]{8}$">
                     </div>
                     <div class="form-control">
-                        <label for="refreshBtn">\u267B\uFE0F Warp Configs</label>
-                        <button id="refreshBtn" type="button" class="button" style="padding: 10px 0;" onclick="getWarpConfigs()">
-                            Update<span class="material-symbols-outlined">autorenew</span>
+                        <label for="refreshBtn">Warp Configs</label>
+                        <button id="refreshBtn" type="button" class="luxury-button" onclick="getWarpConfigs()">
+                                        Update <i class="bx bx-refresh"></i>
                         </button>
                     </div>
                     <div class="form-control">
-                        <label for="bestWarpInterval">\u{1F504} Best Interval</label>
+                        <label for="bestWarpInterval">Best Interval</label>
                         <input type="number" id="bestWarpInterval" name="bestWarpInterval" min="10" max="90" value="${bestWarpInterval}">
                     </div>
                 </details>
                 <details>
-                    <summary><h2>WARP PRO \u2699\uFE0F</h2></summary>
+                    <summary><h2>WARP PRO <i class="bx bx-star"></i></h2></summary>
                     <div class="form-control">
-                        <label for="hiddifyNoiseMode">\u{1F635}\u200D\u{1F4AB} Hiddify Mode</label>
-                        <input type="text" id="hiddifyNoiseMode" name="hiddifyNoiseMode" 
-                            pattern="^(m[1-6]|h_[0-9A-Fa-f]{2}|g_([0-9A-Fa-f]{2}_){2}[0-9A-Fa-f]{2})$" 
-                            title="Enter 'm1-m6', 'h_HEX', 'g_HEX_HEX_HEX' which HEX can be between 00 to ff"
-                            value="${hiddifyNoiseMode}" required>
+                        <label for="hiddifyNoiseMode">Hiddify Mode</label>
+                        <input type="text" id="hiddifyNoiseMode" name="hiddifyNoiseMode" value="${hiddifyNoiseMode}" required>
                     </div>
                     <div class="form-control">
-                        <label for="nikaNGNoiseMode">\u{1F635}\u200D\u{1F4AB} NikaNG Mode</label>
-                        <input type="text" id="nikaNGNoiseMode" name="nikaNGNoiseMode" 
-                            pattern="^(none|quic|random|[0-9A-Fa-f]+)$" 
-                            title="Enter 'none', 'quic', 'random', or any HEX string like 'ee0000000108aaaa'"
-                            value="${nikaNGNoiseMode}" required>
+                        <label for="nikaNGNoiseMode">NikaNG Mode</label>
+                        <input type="text" id="nikaNGNoiseMode" name="nikaNGNoiseMode" value="${nikaNGNoiseMode}" required>
                     </div>
                     <div class="form-control">
-                        <label for="noiseCountMin">\u{1F39A}\uFE0F Noise Count</label>
+                        <label for="noiseCountMin">Noise Count</label>
                         <div class="min-max">
-                            <input type="number" id="noiseCountMin" name="noiseCountMin"
-                                value="${noiseCountMin}" min="1" required>
+                            <input type="number" id="noiseCountMin" name="noiseCountMin" value="${noiseCountMin}" min="1" required>
                             <span> - </span>
-                            <input type="number" id="noiseCountMax" name="noiseCountMax"
-                                value="${noiseCountMax}" min="1" required>
+                            <input type="number" id="noiseCountMax" name="noiseCountMax" value="${noiseCountMax}" min="1" required>
                         </div>
                     </div>
                     <div class="form-control">
-                        <label for="noiseSizeMin">\u{1F4CF} Noise Size</label>
+                        <label for="noiseSizeMin">Noise Size</label>
                         <div class="min-max">
-                            <input type="number" id="noiseSizeMin" name="noiseSizeMin"
-                                value="${noiseSizeMin}" min="1" required>
+                            <input type="number" id="noiseSizeMin" name="noiseSizeMin" value="${noiseSizeMin}" min="1" required>
                             <span> - </span>
-                            <input type="number" id="noiseSizeMax" name="noiseSizeMax"
-                                value="${noiseSizeMax}" min="1" required>
+                            <input type="number" id="noiseSizeMax" name="noiseSizeMax" value="${noiseSizeMax}" min="1" required>
                         </div>
                     </div>
                     <div class="form-control">
-                        <label for="noiseDelayMin">\u{1F55E} Noise Delay</label>
+                        <label for="noiseDelayMin">Noise Delay</label>
                         <div class="min-max">
-                            <input type="number" id="noiseDelayMin" name="noiseDelayMin"
-                                value="${noiseDelayMin}" min="1" required>
+                            <input type="number" id="noiseDelayMin" name="noiseDelayMin" value="${noiseDelayMin}" min="1" required>
                             <span> - </span>
-                            <input type="number" id="noiseDelayMax" name="noiseDelayMax"
-                                value="${noiseDelayMax}" min="1" required>
+                            <input type="number" id="noiseDelayMax" name="noiseDelayMax" value="${noiseDelayMax}" min="1" required>
                         </div>
                     </div>
                 </details>
                 <details>
-                    <summary><h2>ROUTING RULES \u2699\uFE0F</h2></summary>
-                    <div id="routing-rules" class="form-control" style="margin-bottom: 20px;">			
+                    <summary><h2>ROUTING RULES <i class="bx bx-router"></i></h2></summary>
+                    <div id="routing-rules" class="form-control">
                         <div class="routing">
-                            <input type="checkbox" id="bypass-lan" name="bypass-lan" value="true" ${bypassLAN ? "checked" : ""}>
+                            <input type="checkbox" id="bypass-lan" name="bypass-lan" value="true" ${bypassLAN ? 'checked' : ''}>
                             <label for="bypass-lan">Bypass LAN</label>
                         </div>
                         <div class="routing">
-                            <input type="checkbox" id="block-ads" name="block-ads" value="true" ${blockAds ? "checked" : ""}>
-                            <label for="block-ads">Block Ads.</label>
+                            <input type="checkbox" id="block-ads" name="block-ads" value="true" ${blockAds ? 'checked' : ''}>
+                            <label for="block-ads">Block Ads</label>
                         </div>
                         <div class="routing">
-                            <input type="checkbox" id="bypass-iran" name="bypass-iran" value="true" ${bypassIran ? "checked" : ""}>
+                            <input type="checkbox" id="bypass-iran" name="bypass-iran" value="true" ${bypassIran ? 'checked' : ''}>
                             <label for="bypass-iran">Bypass Iran</label>
                         </div>
                         <div class="routing">
-                            <input type="checkbox" id="block-porn" name="block-porn" value="true" ${blockPorn ? "checked" : ""}>
+                            <input type="checkbox" id="block-porn" name="block-porn" value="true" ${blockPorn ? 'checked' : ''}>
                             <label for="block-porn">Block Porn</label>
                         </div>
                         <div class="routing">
-                            <input type="checkbox" id="bypass-china" name="bypass-china" value="true" ${bypassChina ? "checked" : ""}>
+                            <input type="checkbox" id="bypass-china" name="bypass-china" value="true" ${bypassChina ? 'checked' : ''}>
                             <label for="bypass-china">Bypass China</label>
                         </div>
                         <div class="routing">
-                            <input type="checkbox" id="block-udp-443" name="block-udp-443" value="true" ${blockUDP443 ? "checked" : ""}>
+                            <input type="checkbox" id="block-udp-443" name="block-udp-443" value="true" ${blockUDP443 ? 'checked' : ''}>
                             <label for="block-udp-443">Block QUIC</label>
                         </div>
                         <div class="routing">
-                            <input type="checkbox" id="bypass-russia" name="bypass-russia" value="true" ${bypassRussia ? "checked" : ""}>
+                            <input type="checkbox" id="bypass-russia" name="bypass-russia" value="true" ${bypassRussia ? 'checked' : ''}>
                             <label for="bypass-russia">Bypass Russia</label>
                         </div>
                     </div>
-                    <h3>CUSTOM RULES \u{1F527}</h3>
+                    <h3>CUSTOM RULES</h3>
                     <div class="form-control">
-                        <label for="customBypassRules">\u{1F7E9} Bypass IPs / Domains</label>
+                        <label for="customBypassRules">Bypass IPs / Domains</label>
                         <input type="text" id="customBypassRules" name="customBypassRules" value="${customBypassRules.replaceAll(",", " , ")}">
                     </div>
                     <div class="form-control">
-                        <label for="customBlockRules">\u{1F7E5} Block IPs / Domains</label>
+                        <label for="customBlockRules">Block IPs / Domains</label>
                         <input type="text" id="customBlockRules" name="customBlockRules" value="${customBlockRules.replaceAll(",", " , ")}">
                     </div>
                 </details>
                 <div id="apply" class="form-control">
                     <div style="grid-column: 2; width: 100%; display: inline-flex;">
-                        <input type="submit" id="applyButton" style="margin-right: 10px;" class="button disabled" value="APPLY SETTINGS \u{1F4A5}" form="configForm">
-                        <button type="button" id="resetSettings" style="background: none; margin: 0; border: none; cursor: pointer;">
-                            <i class="fa fa-refresh fa-2x fa-border" style="border-radius: .2em; border-color: var(--border-color);" aria-hidden="true"></i>
+                        <input type="submit" id="applyButton" class="luxury-button disabled" value="APPLY SETTINGS" form="configForm">
+                        <button type="button" id="resetSettings" class="luxury-button">
+                            <i class="bx bx-reset"></i>
                         </button>
                     </div>
                 </div>
             </form>
-            <hr>            
-            <h2>\u{1F517} NORMAL SUB</h2>
+            <hr>
+            <h2>NORMAL SUB <i class="bx bx-link"></i></h2>
             <div class="table-container">
                 <table id="normal-configs-table">
                     <tr>
@@ -5326,25 +5255,16 @@ async function renderHomePage(proxySettings, isPassSet) {
                         <th>Subscription</th>
                     </tr>
                     <tr>
-                        <td>
-                            ${supportedApps(["v2rayNG", "NikaNG", "MahsaNG", "v2rayN", "v2rayN-PRO", "Shadowrocket", "Streisand", "Hiddify", "Nekoray (Xray)"])}
-                        </td>
-                        <td>
-                            ${subQR("sub", "", `68-Normal`, "Normal Subscription")}
-                            ${subURL("sub", "", `68-Normal`)}
-                        </td>
+                        <td>${supportedApps(['v2rayNG', 'NikaNG', 'MahsaNG', 'v2rayN', 'v2rayN-PRO', 'Shadowrocket', 'Streisand', 'Hiddify', 'Nekoray (Xray)'])}</td>
+                        <td>${subQR('sub', '', '68-Normal', 'Normal Subscription')} ${subURL('sub', '', '68-Normal')}</td>
                     </tr>
                     <tr>
-                        <td>
-                            ${supportedApps(["husi", "Nekobox", "Nekoray (sing-Box)", "Karing"])}
-                        </td>
-                        <td>
-                            ${subURL("sub", "singbox", `68-Normal`)}
-                        </td>
+                        <td>${supportedApps(['husi', 'Nekobox', 'Nekoray (sing-Box)', 'Karing'])}</td>
+                        <td>${subURL('sub', 'singbox', '68-Normal')}</td>
                     </tr>
                 </table>
             </div>
-            <h2>\u{1F517} FULL NORMAL SUB</h2>
+            <h2>FULL NORMAL SUB <i class="bx bx-link-alt"></i></h2>
             <div class="table-container">
                 <table id="full-normal-configs-table">
                     <tr>
@@ -5352,62 +5272,37 @@ async function renderHomePage(proxySettings, isPassSet) {
                         <th>Subscription</th>
                     </tr>
                     <tr>
-                        <td>
-                            ${supportedApps(["v2rayNG", "NikaNG", "MahsaNG", "v2rayN", "v2rayN-PRO", "Streisand"])}
-                        </td>
-                        <td>
-                            ${subQR("sub", "xray", `68-Full-Normal`, "Full normal Subscription")}
-                            ${subURL("sub", "xray", `68-Full-Normal`)}
-                        </td>
+                        <td>${supportedApps(['v2rayNG', 'NikaNG', 'MahsaNG', 'v2rayN', 'v2rayN-PRO', 'Streisand'])}</td>
+                        <td>${subQR('sub', 'xray', '68-Full-Normal', 'Full normal Subscription')} ${subURL('sub', 'xray', '68-Full-Normal')}</td>
                     </tr>
                     <tr>
-                        <td>
-                            ${supportedApps(["sing-box", "v2rayN (sing-box)"])}
-                        </td>
-                        <td>
-                            ${subQR("sub", "sfa", `68-Full-Normal`, "Full normal Subscription", true)}
-                            ${subURL("sub", "sfa", `68-Full-Normal`)}
-                        </td>
+                        <td>${supportedApps(['sing-box', 'v2rayN (sing-box)'])}</td>
+                        <td>${subQR('sub', 'sfa', '68-Full-Normal', 'Full normal Subscription', true)} ${subURL('sub', 'sfa', '68-Full-Normal')}</td>
                     </tr>
                     <tr>
-                        <td>
-                            ${supportedApps(["Clash Meta", "Clash Verge", "FlClash", "Stash", "v2rayN (mihomo)"])}
-                        </td>
-                        <td>
-                            ${subQR("sub", "clash", `68-Full-Normal`, "Full normal Subscription")}
-                            ${subURL("sub", "clash", `68-Full-Normal`)}
-                        </td>
+                        <td>${supportedApps(['Clash Meta', 'Clash Verge', 'FlClash', 'Stash', 'v2rayN (mihomo)'])}</td>
+                        <td>${subQR('sub', 'clash', '68-Full-Normal', 'Full normal Subscription')} ${subURL('sub', 'clash', '68-Full-Normal')}</td>
                     </tr>
                 </table>
             </div>
-            <h2>\u{1F517} FRAGMENT SUB</h2>
+            <h2>FRAGMENT SUB <i class="bx bx-fragment"></i></h2>
             <div class="table-container">
                 <table id="frag-sub-table">
                     <tr>
-                        <th style="text-wrap: nowrap;">Application</th>
-                        <th style="text-wrap: nowrap;">Subscription</th>
+                        <th>Application</th>
+                        <th>Subscription</th>
                     </tr>
                     <tr>
-                        <td style="text-wrap: nowrap;">
-                            ${supportedApps(["v2rayNG", "NikaNG", "MahsaNG", "v2rayN", "v2rayN-PRO", "Streisand"])}
-                        </td>
-                        <td>
-                            ${subQR("fragsub", "", `68-Fragment`, "Fragment Subscription")}
-                            ${subURL("fragsub", "", `68-Fragment`)}
-                        </td>
+                        <td>${supportedApps(['v2rayNG', 'NikaNG', 'MahsaNG', 'v2rayN', 'v2rayN-PRO', 'Streisand'])}</td>
+                        <td>${subQR('fragsub', '', '68-Fragment', 'Fragment Subscription')} ${subURL('fragsub', '', '68-Fragment')}</td>
                     </tr>
                     <tr>
-                        <td style="text-wrap: nowrap;">
-                            ${supportedApps(["Hiddify"])}
-                        </td>
-                        <td>
-                            ${subQR("fragsub", "hiddify", `68-Fragment`, "Fragment Subscription")}
-                            ${subURL("fragsub", "hiddify", `68-Fragment`)}
-                        </td>
+                        <td>${supportedApps(['Hiddify'])}</td>
+                        <td>${subQR('fragsub', 'hiddify', '68-Fragment', 'Fragment Subscription')} ${subURL('fragsub', 'hiddify', '68-Fragment')}</td>
                     </tr>
                 </table>
             </div>
-            <h2>\u{1F517} WARP SUB</h2>
+            <h2>WARP SUB <i class="bx bx-cloud"></i></h2>
             <div class="table-container">
                 <table id="normal-configs-table">
                     <tr>
@@ -5415,35 +5310,20 @@ async function renderHomePage(proxySettings, isPassSet) {
                         <th>Subscription</th>
                     </tr>
                     <tr>
-                        <td>
-                            ${supportedApps(["v2rayNG", "v2rayN", "Streisand"])}
-                        </td>
-                        <td>
-                            ${subQR("warpsub", "xray", `68-Warp`, "Warp Subscription")}
-                            ${subURL("warpsub", "xray", `68-Warp`)}
-                        </td>
+                        <td>${supportedApps(['v2rayNG', 'v2rayN', 'Streisand'])}</td>
+                        <td>${subQR('warpsub', 'xray', '68-Warp', 'Warp Subscription')} ${subURL('warpsub', 'xray', '68-Warp')}</td>
                     </tr>
                     <tr>
-                        <td>
-                            ${supportedApps(["Hiddify", "sing-box", "v2rayN (sing-box)"])}
-                        </td>
-                        <td>
-                            ${subQR("sub", "singbox", `68-Warp`, "Warp Subscription", true)}
-                            ${subURL("warpsub", "singbox", `68-Warp`)}
-                        </td>
+                        <td>${supportedApps(['Hiddify', 'sing-box', 'v2rayN (sing-box)'])}</td>
+                        <td>${subQR('sub', 'singbox', '68-Warp', 'Warp Subscription', true)} ${subURL('warpsub', 'singbox', '68-Warp')}</td>
                     </tr>
                     <tr>
-                        <td>
-                            ${supportedApps(["Clash Meta", "Clash Verge", "FlClash", "Stash", "v2rayN (mihomo)"])}
-                        </td>
-                        <td>
-                            ${subQR("warpsub", "clash", `68-Warp`, "Warp Subscription")}
-                            ${subURL("warpsub", "clash", `68-Warp`)}
-                        </td>
+                        <td>${supportedApps(['Clash Meta', 'Clash Verge', 'FlClash', 'Stash', 'v2rayN (mihomo)'])}</td>
+                        <td>${subQR('warpsub', 'clash', '68-Warp', 'Warp Subscription')} ${subURL('warpsub', 'clash', '68-Warp')}</td>
                     </tr>
                 </table>
             </div>
-            <h2>\u{1F517} WARP PRO SUB</h2>
+            <h2>WARP PRO SUB <i class="bx bx-star"></i></h2>
             <div class="table-container">
                 <table id="warp-pro-configs-table">
                     <tr>
@@ -5451,47 +5331,37 @@ async function renderHomePage(proxySettings, isPassSet) {
                         <th>Subscription</th>
                     </tr>
                     <tr>
-                        <td>
-                            ${supportedApps(["NikaNG", "MahsaNG", "v2rayN-PRO"])}
-                        </td>
-                        <td>
-                            ${subQR("warpsub", "nikang", `68-Warp-Pro`, "Warp Pro Subscription")}
-                            ${subURL("warpsub", "nikang", `68-Warp-Pro`)}
-                        </td>
+                        <td>${supportedApps(['NikaNG', 'MahsaNG', 'v2rayN-PRO'])}</td>
+                        <td>${subQR('warpsub', 'nikang', '68-Warp-Pro', 'Warp Pro Subscription')} ${subURL('warpsub', 'nikang', '68-Warp-Pro')}</td>
                     </tr>
                     <tr>
-                        <td>
-                            ${supportedApps(["Hiddify"])}
-                        </td>
-                        <td>
-                            ${subQR("warpsub", "hiddify", `68-Warp-Pro`, "Warp Pro Subscription", true)}
-                            ${subURL("warpsub", "hiddify", `68-Warp-Pro`)}
-                        </td>
+                        <td>${supportedApps(['Hiddify'])}</td>
+                        <td>${subQR('warpsub', 'hiddify', '68-Warp-Pro', 'Warp Pro Subscription', true)} ${subURL('warpsub', 'hiddify', '68-Warp-Pro')}</td>
                     </tr>
                 </table>
             </div>
             <div id="myModal" class="modal">
                 <div class="modal-content">
-                    <span class="close">&times;</span>
+                    <span class="close">×</span>
                     <form id="passwordChangeForm">
                         <h2>Change Password</h2>
                         <div class="form-control">
                             <label for="newPassword">New Password</label>
                             <input type="password" id="newPassword" name="newPassword" required>
-                            </div>
+                        </div>
                         <div class="form-control">
                             <label for="confirmPassword">Confirm Password</label>
                             <input type="password" id="confirmPassword" name="confirmPassword" required>
                         </div>
                         <div id="passwordError" style="color: red; margin-bottom: 10px;"></div>
-                        <button id="changePasswordBtn" type="submit" class="button">Change Password</button>
+                        <button id="changePasswordBtn" type="submit" class="luxury-button">Change Password</button>
                     </form>
                 </div>
             </div>
             <div id="myQRModal" class="modalQR">
-                <div class="modal-content" style="width: auto; text-align: center;">
+                <div class="modal-content">
                     <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 10px;">
-                        <span id="closeQRModal" class="close" style="align-self: flex-end;">&times;</span>
+                        <span id="closeQRModal" class="close" style="align-self: flex-end;">×</span>
                         <span id="qrcodeTitle" style="align-self: center; font-weight: bold;"></span>
                     </div>
                     <div id="qrcode-container"></div>
@@ -5499,13 +5369,13 @@ async function renderHomePage(proxySettings, isPassSet) {
             </div>
             <hr>
             <div class="header-container">
-                <h2 style="margin: 0 5px;">\u{1F4A1} MY IP</h2>
-                <button type="button" id="refresh-geo-location" onclick="fetchIPInfo()" style="background: none; margin: 0; border: none; cursor: pointer;">
-                    <i class="fa fa-refresh fa-2x" style="color: var(--button-color);" aria-hidden="true"></i>
-                </button>       
+                <h2 style="margin: 0 5px;">MY IP <i class="bx bx-globe"></i></h2>
+                <button type="button" id="refresh-geo-location" class="luxury-button" onclick="fetchIPInfo()">
+                    <i class="bx bx-refresh"></i>
+                </button>
             </div>
             <div class="table-container">
-                <table id="ips" style="text-align: center; margin-bottom: 15px; text-wrap-mode: nowrap;">
+                <table id="ips">
                     <tr>
                         <th>Target Address</th>
                         <th>IP</th>
@@ -5531,35 +5401,32 @@ async function renderHomePage(proxySettings, isPassSet) {
             </div>
             <hr>
             <div class="footer">
-                <i class="fa fa-github" style="font-size:36px; margin-right: 10px;"></i>
-                <a class="link" href="https://github.com/iErfun/${atob("QlBC")}-Panel-68" style="color: var(--color); text-decoration: underline;" target="_blank">Github</a>
-                <button id="openModalBtn" class="button">Change Password</button>
-                <button type="button" id="logout" style="background: none; color: var(--color); margin: 0; border: none; cursor: pointer;">
-                    <i class="fa fa-power-off fa-2x" aria-hidden="true"></i>
-                </button>
+                            <a href="https://github.com/bia-pain-bache/BPB-Worker-Panel" target="_blank"><i class="bx bxl-github" style="font-size: 36px;"></i></a>
+                <button id="openModalBtn" class="luxury-button">Change Password</button>
+                <button type="button" id="logout" class="luxury-button"><i class="bx bx-power-off"></i></button>
             </div>
         </div>
         <button id="darkModeToggle" class="floating-button">
-            <i id="modeIcon" class="fa fa-2x fa-adjust" style="color: var(--background-color);" aria-hidden="true"></i>
+            <i id="modeIcon" class="bx bx-moon"></i>
         </button>
     <script type="module" defer>
         import { polyfillCountryFlagEmojis } from "https://cdn.skypack.dev/country-flag-emoji-polyfill";
         polyfillCountryFlagEmojis();
-    <\/script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         const defaultHttpsPorts = ['443', '8443', '2053', '2083', '2087', '2096'];
         let activePortsNo = ${ports.length};
-        let activeHttpsPortsNo = ${ports.filter((port) => globalThis.defaultHttpsPorts.includes(port)).length};
+        let activeHttpsPortsNo = ${ports.filter(port => globalThis.defaultHttpsPorts.includes(port)).length};
         let activeProtocols = ${activeProtocols};
         const warpPlusLicense = '${warpPlusLicense}';
         localStorage.getItem('darkMode') === 'enabled' && document.body.classList.add('dark-mode');
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const configForm = document.getElementById('configForm');            
+            const configForm = document.getElementById('configForm');
             const changePass = document.getElementById('openModalBtn');
             const closeBtn = document.querySelector(".close");
-            const passwordChangeForm = document.getElementById('passwordChangeForm');                    
+            const passwordChangeForm = document.getElementById('passwordChangeForm');
             const initialFormData = new FormData(configForm);
             const modal = document.getElementById('myModal');
             const closeQR = document.getElementById('closeQRModal');
@@ -5568,34 +5435,31 @@ async function renderHomePage(proxySettings, isPassSet) {
             let qrcodeContainer = document.getElementById('qrcode-container');
             let forcedPassChange = false;
             const darkModeToggle = document.getElementById('darkModeToggle');
-                    
+
             const hasFormDataChanged = () => {
                 const currentFormData = new FormData(configForm);
                 const currentFormDataEntries = [...currentFormData.entries()];
-
                 const nonCheckboxFieldsChanged = currentFormDataEntries.some(
                     ([key, value]) => !initialFormData.has(key) || initialFormData.get(key) !== value
                 );
-
                 const checkboxFieldsChanged = Array.from(configForm.elements)
                     .filter((element) => element.type === 'checkbox')
                     .some((checkbox) => {
-                    const initialValue = initialFormData.has(checkbox.name)
-                        ? initialFormData.get(checkbox.name)
-                        : false;
-                    const currentValue = currentFormDataEntries.find(([key]) => key === checkbox.name)?.[1] || false;
-                    return initialValue !== currentValue;
-                });
-
+                        const initialValue = initialFormData.has(checkbox.name)
+                            ? initialFormData.get(checkbox.name)
+                            : false;
+                        const currentValue = currentFormDataEntries.find(([key]) => key === checkbox.name)?.[1] || false;
+                        return initialValue !== currentValue;
+                    });
                 return nonCheckboxFieldsChanged || checkboxFieldsChanged;
             };
-            
+
             const enableApplyButton = () => {
                 const isChanged = hasFormDataChanged();
                 applyButton.disabled = !isChanged;
                 applyButton.classList.toggle('disabled', !isChanged);
             };
-                        
+
             passwordChangeForm.addEventListener('submit', event => resetPassword(event));
             document.getElementById('logout').addEventListener('click', event => logout(event));
             configForm.addEventListener('submit', (event) => applySettings(event, configForm));
@@ -5606,7 +5470,7 @@ async function renderHomePage(proxySettings, isPassSet) {
                 modal.style.display = "block";
                 document.body.style.overflow = "hidden";
                 forcedPassChange = false;
-            });        
+            });
             closeBtn.addEventListener('click', () => {
                 modal.style.display = "none";
                 document.body.style.overflow = "";
@@ -5616,30 +5480,28 @@ async function renderHomePage(proxySettings, isPassSet) {
                 qrcodeContainer.lastElementChild.remove();
             });
             resetSettings.addEventListener('click', async () => {
-                const confirmReset = confirm('\u26A0\uFE0F This will reset all panel settings.\\nAre you sure?');
-                if(!confirmReset) return;
+                const confirmReset = confirm('⚠️ This will reset all panel settings.\\nAre you sure?');
+                if (!confirmReset) return;
                 const formData = new FormData();
                 formData.append('resetSettings', 'true');
                 try {
                     document.body.style.cursor = 'wait';
                     const refreshButtonVal = refreshBtn.innerHTML;
-                    refreshBtn.innerHTML = '\u231B Loading...';
-
+                    refreshBtn.innerHTML = '⌛ Loading...';
                     const response = await fetch('/panel', {
                         method: 'POST',
                         body: formData,
                         credentials: 'include'
                     });
-
                     document.body.style.cursor = 'default';
                     refreshBtn.innerHTML = refreshButtonVal;
                     if (!response.ok) {
                         const errorMessage = await response.text();
                         console.error(errorMessage, response.status);
-                        alert('\u26A0\uFE0F An error occured, Please try again!\\n\u26D4 ' + errorMessage);
+                        alert('⚠️ An error occurred, Please try again!\\n⛔ ' + errorMessage);
                         return;
-                    }       
-                    alert('\u2705 Panel settings reset to default successfully! \u{1F60E}');
+                    }
+                    alert('✅ Panel settings reset to default successfully! 😎');
                     window.location.reload(true);
                 } catch (error) {
                     console.error('Error:', error);
@@ -5650,10 +5512,12 @@ async function renderHomePage(proxySettings, isPassSet) {
                     modalQR.style.display = "none";
                     qrcodeContainer.lastElementChild.remove();
                 }
-            }
+            };
             darkModeToggle.addEventListener('click', () => {
                 const isDarkMode = document.body.classList.toggle('dark-mode');
                 localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
+                document.getElementById('modeIcon').classList.toggle('bx-moon');
+                document.getElementById('modeIcon').classList.toggle('bx-sun');
             });
 
             const isPassSet = ${isPassSet};
@@ -5675,13 +5539,13 @@ async function renderHomePage(proxySettings, isPassSet) {
             };
 
             const refreshIcon = document.getElementById("refresh-geo-location").querySelector('i');
-            refreshIcon.classList.add('fa-spin');
+            refreshIcon.classList.add('bx-spin');
             document.body.style.cursor = 'wait';
 
             try {
                 const ipResponse = await fetch('https://ipwho.is/' + '?nocache=' + Date.now(), { cache: "no-store" });
                 const ipResponseObj = await ipResponse.json();
-                const geoResponse = await fetch('/my-ip', { 
+                const geoResponse = await fetch('/my-ip', {
                     method: 'POST',
                     body: ipResponseObj.ip
                 });
@@ -5689,57 +5553,57 @@ async function renderHomePage(proxySettings, isPassSet) {
                 updateUI(ipResponseObj.ip, ipGeoLocation.country, ipGeoLocation.countryCode, ipGeoLocation.city, ipGeoLocation.isp);
                 const cfIPresponse = await fetch('https://ipv4.icanhazip.com/?nocache=' + Date.now(), { cache: "no-store" });
                 const cfIP = await cfIPresponse.text();
-                const cfGeoResponse = await fetch('/my-ip', { 
+                const cfGeoResponse = await fetch('/my-ip', {
                     method: 'POST',
                     body: cfIP.trim()
                 });
                 const cfIPGeoLocation = await cfGeoResponse.json();
                 updateUI(cfIP, cfIPGeoLocation.country, cfIPGeoLocation.countryCode, cfIPGeoLocation.city, cfIPGeoLocation.isp, true);
-                refreshIcon.classList.remove('fa-spin');
+                refreshIcon.classList.remove('bx-spin');
                 document.body.style.cursor = 'default';
             } catch (error) {
                 console.error('Error fetching IP address:', error);
             }
-        }
+        };
 
         const getWarpConfigs = async () => {
             const license = document.getElementById('warpPlusLicense').value;
             if (license !== warpPlusLicense) {
-                alert('\u26A0\uFE0F First APPLY SETTINGS and then update Warp configs!');
+                alert('⚠️ First APPLY SETTINGS and then update Warp configs!');
                 return false;
             }
-            const confirmReset = confirm('\u26A0\uFE0F Are you sure?');
-            if(!confirmReset) return;
+            const confirmReset = confirm('⚠️ Are you sure?');
+            if (!confirmReset) return;
             const refreshBtn = document.getElementById('refreshBtn');
 
             try {
                 document.body.style.cursor = 'wait';
                 const refreshButtonVal = refreshBtn.innerHTML;
-                refreshBtn.innerHTML = '\u231B Loading...';
-
+                refreshBtn.innerHTML = '⌛ Loading...';
                 const response = await fetch('/update-warp', {
                     method: 'POST',
                     credentials: 'include'
                 });
-
                 document.body.style.cursor = 'default';
                 refreshBtn.innerHTML = refreshButtonVal;
                 if (!response.ok) {
                     const errorMessage = await response.text();
                     console.error(errorMessage, response.status);
-                    alert('\u26A0\uFE0F An error occured, Please try again!\\n\u26D4 ' + errorMessage);
+                    alert('⚠️ An error occurred, Please try again!\\n⛔ ' + errorMessage);
                     return;
-                }          
-                ${isWarpPlus ? `alert('\u2705 Warp configs upgraded to PLUS successfully! \u{1F60E}');` : `alert('\u2705 Warp configs updated successfully! \u{1F60E}');`}
+                }
+                ${isWarpPlus
+                    ? `alert('✅ Warp configs upgraded to PLUS successfully! 😎');`
+                    : `alert('✅ Warp configs updated successfully! 😎');`
+                }
             } catch (error) {
                 console.error('Error:', error);
-            } 
-        }
+            }
+        };
 
         const handlePortChange = (event) => {
-            
-            if(event.target.checked) { 
-                activePortsNo++ 
+            if (event.target.checked) {
+                activePortsNo++;
                 defaultHttpsPorts.includes(event.target.name) && activeHttpsPortsNo++;
             } else {
                 activePortsNo--;
@@ -5749,25 +5613,24 @@ async function renderHomePage(proxySettings, isPassSet) {
             if (activePortsNo === 0) {
                 event.preventDefault();
                 event.target.checked = !event.target.checked;
-                alert("\u26D4 At least one port should be selected! \u{1FAE4}");
+                alert("⛔ At least one port should be selected! 🫤");
                 activePortsNo = 1;
                 defaultHttpsPorts.includes(event.target.name) && activeHttpsPortsNo++;
                 return false;
             }
-                
+
             if (activeHttpsPortsNo === 0) {
                 event.preventDefault();
                 event.target.checked = !event.target.checked;
-                alert("\u26D4 At least one TLS(https) port should be selected! \u{1FAE4}");
+                alert("⛔ At least one TLS(https) port should be selected! 🫤");
                 activeHttpsPortsNo = 1;
                 return false;
             }
-        }
-        
+        };
+
         const handleProtocolChange = (event) => {
-            
-            if(event.target.checked) { 
-                activeProtocols++ 
+            if (event.target.checked) {
+                activeProtocols++;
             } else {
                 activeProtocols--;
             }
@@ -5775,32 +5638,33 @@ async function renderHomePage(proxySettings, isPassSet) {
             if (activeProtocols === 0) {
                 event.preventDefault();
                 event.target.checked = !event.target.checked;
-                alert("\u26D4 At least one Protocol should be selected! \u{1FAE4}");
+                alert("⛔ At least one Protocol should be selected! 🫤");
                 activeProtocols = 1;
                 return false;
             }
-        }
+        };
 
         const openQR = (url, title) => {
             let qrcodeContainer = document.getElementById("qrcode-container");
             let qrcodeTitle = document.getElementById("qrcodeTitle");
             const modalQR = document.getElementById("myQRModal");
             qrcodeTitle.textContent = title;
-            modalQR.style.display = "block";
+                        modalQR.style.display = "block";
             let qrcodeDiv = document.createElement("div");
             qrcodeDiv.className = "qrcode";
-            qrcodeDiv.style.padding = "2px";
-            qrcodeDiv.style.backgroundColor = "#ffffff";
+            qrcodeDiv.style.padding = "5px";
+            qrcodeDiv.style.backgroundColor = "#e0e0e0";
+            qrcodeDiv.style.borderRadius = "10px";
             new QRCode(qrcodeDiv, {
                 text: url,
                 width: 256,
                 height: 256,
                 colorDark: "#000000",
-                colorLight: "#ffffff",
+                colorLight: "#e0e0e0",
                 correctLevel: QRCode.CorrectLevel.H
             });
             qrcodeContainer.appendChild(qrcodeDiv);
-        }
+        };
 
         const copyToClipboard = (text) => {
             const textarea = document.createElement('textarea');
@@ -5809,14 +5673,14 @@ async function renderHomePage(proxySettings, isPassSet) {
             textarea.select();
             document.execCommand('copy');
             document.body.removeChild(textarea);
-            alert('\u{1F4CB} Copied to clipboard:\\n\\n' +  text);
-        }
+            alert('📋 Copied to clipboard:\\n\\n' + text);
+        };
 
         const applySettings = async (event, configForm) => {
             event.preventDefault();
             event.stopPropagation();
             const applyButton = document.getElementById('applyButton');
-            const getValue = (id) => parseInt(document.getElementById(id).value, 10);              
+            const getValue = (id) => parseInt(document.getElementById(id).value, 10);
             const lengthMin = getValue('fragmentLengthMin');
             const lengthMax = getValue('fragmentLengthMax');
             const intervalMin = getValue('fragmentIntervalMin');
@@ -5835,10 +5699,10 @@ async function renderHomePage(proxySettings, isPassSet) {
             const cleanIPs = document.getElementById('cleanIPs').value?.split(',');
             const proxyIPs = document.getElementById('proxyIP').value?.split(',');
             const chainProxy = document.getElementById('outProxy').value?.trim();
-            const customBypassRules = document.getElementById('customBypassRules').value?.split(',');                    
-            const customBlockRules = document.getElementById('customBlockRules').value?.split(',');                    
+            const customBypassRules = document.getElementById('customBypassRules').value?.split(',');
+            const customBlockRules = document.getElementById('customBlockRules').value?.split(',');
             const formData = new FormData(configForm);
-            const is${atob("Vmxlc3M=")} = /${atob("dmxlc3M=")}:\\/\\/[^s@]+@[^\\s:]+:[^\\s]+/.test(chainProxy);
+            const isVless = /vless:\\/\\/[^\s@]+@[^\\s:]+:[^\\s]+/.test(chainProxy);
             const isSocksHttp = /^(http|socks):\\/\\/(?:([^:@]+):([^:@]+)@)?([^:@]+):(\\d+)$/.test(chainProxy);
             const hasSecurity = /security=/.test(chainProxy);
             const securityRegex = /security=(tls|none|reality)/;
@@ -5846,14 +5710,14 @@ async function renderHomePage(proxySettings, isPassSet) {
             let match = chainProxy.match(securityRegex);
             const securityType = match ? match[1] : null;
             match = chainProxy.match(/:(\\d+)\\?/);
-            const ${atob("dmxlc3M=")}Port = match ? match[1] : null;
+            const vlessPort = match ? match[1] : null;
             const validTransmission = /type=(tcp|grpc|ws)/.test(chainProxy);
             const validIPDomain = /^((?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,})|(?:(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)(?:\\/(?:\\d|[12]\\d|3[0-2]))?|\\[(?:(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}|(?:[a-fA-F0-9]{1,4}:){1,7}:|(?:[a-fA-F0-9]{1,4}:){1,6}:[a-fA-F0-9]{1,4}|(?:[a-fA-F0-9]{1,4}:){1,5}(?::[a-fA-F0-9]{1,4}){1,2}|(?:[a-fA-F0-9]{1,4}:){1,4}(?::[a-fA-F0-9]{1,4}){1,3}|(?:[a-fA-F0-9]{1,4}:){1,3}(?::[a-fA-F0-9]{1,4}){1,4}|(?:[a-fA-F0-9]{1,4}:){1,2}(?::[a-fA-F0-9]{1,4}){1,5}|[a-fA-F0-9]{1,4}:(?::[a-fA-F0-9]{1,4}){1,6}|:(?::[a-fA-F0-9]{1,4}){1,7})\\](?:\\/(?:12[0-8]|1[0-1]\\d|[0-9]?\\d))?)$/i;
-            const validEndpoint = /^(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}|(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|\\[(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}\\]|\\[(?:[a-fA-F0-9]{1,4}:){1,7}:\\]|\\[(?:[a-fA-F0-9]{1,4}:){1,6}:[a-fA-F0-9]{1,4}\\]|\\[(?:[a-fA-F0-9]{1,4}:){1,5}(?::[a-fA-F0-9]{1,4}){1,2}\\]|\\[(?:[a-fA-F0-9]{1,4}:){1,4}(?::[a-fA-F0-9]{1,4}){1,3}\\]|\\[(?:[a-fA-F0-9]{1,4}:){1,3}(?::[a-fA-F0-9]{1,4}){1,4}\\]|\\[(?:[a-fA-F0-9]{1,4}:){1,2}(?::[a-fA-F0-9]{1,4}){1,5}\\]|\\[[a-fA-F0-9]{1,4}:(?::[a-fA-F0-9]{1,4}){1,6}\\]|\\[:(?::[a-fA-F0-9]{1,4}){1,7}\\]|\\[::(?::[a-fA-F0-9]{1,4}){0,7}\\]):(?:[0-9]{1,5})$/;
+            const validEndpoint = /^(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}|(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)|\\[(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}\\]|\\[(?:[a-fA-F0-9]{1,4}:){1,7}:\\]|\\[(?:[a-fA-F0-9]{1,4}:){1,6}:[a-fA-F0-9]{1,4}\\]|\\[(?:[a-fA-F0-9]{1,4}:){1,5}(?::[a-fA-F0-9]{1,4}){1,2}\\]|\\[(?:[a-fA-F0-9]{1,4}:){1,4}(?::[a-fA-F0-9]{1,4}){1,3}\\]|\\[(?:[a-fA-F0-9]{1,4}:){1,3}(?::[a-fA-F0-9]{1,4}){1,4}\\]|\\[(?:[a-fA-F0-9]{1,4}:){1,2}(?::[a-fA-F0-9]{1,4}){1,5}\\]|\\[[a-fA-F0-9]{1,4}:(?::[a-fA-F0-9]{1,4}){1,6}\\]|\\[:(?::[a-fA-F0-9]{1,4}){1,7}\\]|\\[::(?::[a-fA-F0-9]{1,4}){0,7}\\]):(?:[0-9]{1,5})$/;
             const checkedPorts = Array.from(document.querySelectorAll('input[id^="port-"]:checked')).map(input => input.id.split('-')[1]);
             formData.append('ports', checkedPorts);
             configForm.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                !formData.has(checkbox.name) && formData.append(checkbox.name, 'false');    
+                !formData.has(checkbox.name) && formData.append(checkbox.name, 'false');
             });
 
             const invalidIPs = [...cleanIPs, ...proxyIPs, ...customCdnAddrs, ...customBypassRules, ...customBlockRules, customCdnHost, customCdnSni]?.filter(value => {
@@ -5871,72 +5735,68 @@ async function renderHomePage(proxySettings, isPassSet) {
             });
 
             if (invalidIPs.length) {
-                alert('\u26D4 Invalid IPs or Domains \u{1FAE4}\\n\\n' + invalidIPs.map(ip => '\u26A0\uFE0F ' + ip).join('\\n'));
+                alert('⛔ Invalid IPs or Domains 🫤\\n\\n' + invalidIPs.map(ip => '⚠️ ' + ip).join('\\n'));
                 return false;
             }
-            
+
             if (invalidEndpoints.length) {
-                alert('\u26D4 Invalid endpoint \u{1FAE4}\\n\\n' + invalidEndpoints.map(endpoint => '\u26A0\uFE0F ' + endpoint).join('\\n'));
+                alert('⛔ Invalid endpoint 🫤\\n\\n' + invalidEndpoints.map(endpoint => '⚠️ ' + endpoint).join('\\n'));
                 return false;
             }
 
             if (lengthMin >= lengthMax || intervalMin > intervalMax || noiseCountMin > noiseCountMax || noiseSizeMin > noiseSizeMax || noiseDelayMin > noiseDelayMax) {
-                alert('\u26D4 Minimum should be smaller or equal to Maximum! \u{1FAE4}');               
+                alert('⛔ Minimum should be smaller or equal to Maximum! 🫤');
                 return false;
             }
 
-            if (!(is${atob("Vmxlc3M=")} && (hasSecurity && validSecurityType || !hasSecurity) && validTransmission) && !isSocksHttp && chainProxy) {
-                alert('\u26D4 Invalid Config! \u{1FAE4} \\n - The chain proxy should be ${atob("VkxFU1M=")}, Socks or Http!\\n - ${atob("VkxFU1M=")} transmission should be GRPC,WS or TCP\\n - ${atob("VkxFU1M=")} security should be TLS,Reality or None\\n - socks or http should be like:\\n + (socks or http)://user:pass@host:port\\n + (socks or http)://host:port');               
+            if (!(isVless && (hasSecurity && validSecurityType || !hasSecurity) && validTransmission) && !isSocksHttp && chainProxy) {
+                alert('⛔ Invalid Config! 🫤 \\n - The chain proxy should be VLESS, Socks or Http!\\n - VLESS transmission should be GRPC,WS or TCP\\n - VLESS security should be TLS,Reality or None\\n - socks or http should be like:\\n + (socks or http)://user:pass@host:port\\n + (socks or http)://host:port');
                 return false;
             }
 
-            if (is${atob("Vmxlc3M=")} && securityType === 'tls' && ${atob("dmxlc3M=")}Port !== '443') {
-                alert('\u26D4 ${atob("VkxFU1M=")} TLS port can be only 443 to be used as a proxy chain! \u{1FAE4}');               
+            if (isVless && securityType === 'tls' && vlessPort !== '443') {
+                alert('⛔ VLESS TLS port can be only 443 to be used as a proxy chain! 🫤');
                 return false;
             }
 
             if (isCustomCdn && !(customCdnAddrs.length && customCdnHost && customCdnSni)) {
-                alert('\u26D4 All "Custom" fields should be filled or deleted together! \u{1FAE4}');               
+                alert('⛔ All "Custom" fields should be filled or deleted together! 🫤');
                 return false;
             }
 
             try {
                 document.body.style.cursor = 'wait';
                 const applyButtonVal = applyButton.value;
-                applyButton.value = '\u231B Loading...';
-
+                applyButton.value = '⌛ Loading...';
                 const response = await fetch('/panel', {
                     method: 'POST',
                     body: formData,
                     credentials: 'include'
                 });
-
                 document.body.style.cursor = 'default';
                 applyButton.value = applyButtonVal;
 
                 if (!response.ok) {
                     const errorMessage = await response.text();
                     console.error(errorMessage, response.status);
-                    alert('\u26A0\uFE0F Session expired! Please login again.');
+                    alert('⚠️ Session expired! Please login again.');
                     window.location.href = '/login';
                     return;
-                }                
-                alert('\u2705 Parameters applied successfully \u{1F60E}');
+                }
+                alert('✅ Parameters applied successfully 😎');
                 window.location.reload();
             } catch (error) {
                 console.error('Error:', error);
             }
-        }
+        };
 
         const logout = async (event) => {
             event.preventDefault();
-
             try {
                 const response = await fetch('/logout', {
                     method: 'GET',
                     credentials: 'same-origin'
                 });
-            
                 if (!response.ok) {
                     console.error('Failed to log out:', response.status);
                     return;
@@ -5945,14 +5805,14 @@ async function renderHomePage(proxySettings, isPassSet) {
             } catch (error) {
                 console.error('Error:', error);
             }
-        }
+        };
 
         const resetPassword = async (event) => {
             event.preventDefault();
             const modal = document.getElementById('myModal');
             const newPasswordInput = document.getElementById('newPassword');
             const confirmPasswordInput = document.getElementById('confirmPassword');
-            const passwordError = document.getElementById('passwordError');             
+            const passwordError = document.getElementById('passwordError');
             const newPassword = newPasswordInput.value;
             const confirmPassword = confirmPasswordInput.value;
 
@@ -5966,10 +5826,10 @@ async function renderHomePage(proxySettings, isPassSet) {
             const isLongEnough = newPassword.length >= 8;
 
             if (!(hasCapitalLetter && hasNumber && isLongEnough)) {
-                passwordError.textContent = '\u26A0\uFE0F Password must contain at least one capital letter, one number, and be at least 8 characters long.';
+                passwordError.textContent = '⚠️ Password must contain at least one capital letter, one number, and be at least 8 characters long.';
                 return false;
             }
-                    
+
             try {
                 const response = await fetch('/panel/password', {
                     method: 'POST',
@@ -5979,45 +5839,46 @@ async function renderHomePage(proxySettings, isPassSet) {
                     body: newPassword,
                     credentials: 'same-origin'
                 });
-            
+
                 if (response.ok) {
                     modal.style.display = "none";
                     document.body.style.overflow = "";
-                    alert("\u2705 Password changed successfully! \u{1F44D}");
+                    alert("✅ Password changed successfully! 👍");
                     window.location.href = '/login';
                 } else if (response.status === 401) {
                     const errorMessage = await response.text();
-                    passwordError.textContent = '\u26A0\uFE0F ' + errorMessage;
+                    passwordError.textContent = '⚠️ ' + errorMessage;
                     console.error(errorMessage, response.status);
-                    alert('\u26A0\uFE0F Session expired! Please login again.');
+                    alert('⚠️ Session expired! Please login again.');
                     window.location.href = '/login';
                 } else {
                     const errorMessage = await response.text();
-                    passwordError.textContent = '\u26A0\uFE0F ' + errorMessage;
+                    passwordError.textContent = '⚠️ ' + errorMessage;
                     console.error(errorMessage, response.status);
                     return false;
                 }
             } catch (error) {
                 console.error('Error:', error);
             }
-        }
-    <\/script>
-    </body>	
+        };
+    </script>
+    </body>
     </html>`;
-  return new Response(homePage, {
-    status: 200,
-    headers: {
-      "Content-Type": "text/html;charset=utf-8",
-      "Access-Control-Allow-Origin": globalThis.urlOrigin,
-      "Access-Control-Allow-Methods": "GET, POST",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      "X-Content-Type-Options": "nosniff",
-      "X-Frame-Options": "DENY",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, no-transform",
-      "CDN-Cache-Control": "no-store"
-    }
-  });
+
+    return new Response(homePage, {
+        status: 200,
+        headers: {
+            'Content-Type': 'text/html;charset=utf-8',
+            'Access-Control-Allow-Origin': globalThis.urlOrigin,
+            'Access-Control-Allow-Methods': 'GET, POST',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'X-Content-Type-Options': 'nosniff',
+            'X-Frame-Options': 'DENY',
+            'Referrer-Policy': 'strict-origin-when-cross-origin',
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, no-transform',
+            'CDN-Cache-Control': 'no-store'
+        }
+    });
 }
 __name(renderHomePage, "renderHomePage");
 
