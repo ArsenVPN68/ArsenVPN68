@@ -8,7 +8,7 @@ let CDNIP = '\u0077\u0077\u0077\u002e\u0076\u0069\u0073\u0061\u002e\u0063\u006f\
 // http_ip
 let IP1 = '\u0077\u0077\u0077\u002e\u0076\u0069\u0073\u0061\u002e\u0063\u006f\u006d'
 let IP2 = '\u0063\u0069\u0073\u002e\u0076\u0069\u0073\\u0061\u002e\u0063\u006f\u006d'
-let IP3 = '\u0061\u0066\u0072\u0069\u0063\\u0061\u002e\u0076\u0069\u0073\u0061\u002e\u0063\u006f\u006d'
+let IP3 = '\u0061\u0066\u0072\u0069\\u0063\u0061\u002e\u0076\u0069\u0073\u0061\u002e\u0063\u006f\u006d'
 let IP4 = '\u0077\u0077\u0077\u002e\u0076\u0069\u0073\u0061\u002e\u0063\u006f\u006d\u002e\u0073\u0067'
 let IP5 = '\u0077\u0077\u0077\u002e\u0076\u0069\u0073\u0061\u0065\u0075\u0072\u006f\u0070\u0065\u002e\u0061\u0074'
 let IP6 = '\u0077\u0077\u0077\u002e\u0076\u0069\u0073\u0061\u002e\u0063\u006f\u006d\u002e\u006d\u0074'
@@ -636,7 +636,7 @@ hr {
     display: flex; /* Use flexbox for vertical centering if needed */
     align-items: center; /* Center vertically if flex container */
     justify-content: center; /* Center horizontally if flex container */
-    background-color: #3b3b5b; /* Changed to match other panels */
+    background-color: #3b3b5b !important; /* Changed to match other panels, added !important */
     /* Adjust margin-top to make it more in line with other panels if needed */
     margin-top: 15px; /* Example adjustment */
     margin-bottom: 25px; /* Example adjustment */
@@ -645,10 +645,7 @@ hr {
     font-size: 5em; /* Very large font size for emojis */
     line-height: 1; /* Adjust line height to prevent extra space */
     font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif; /* Ensure emoji font is used */
-    /* Remove transparent and text-shadow for emojis to display correctly */
-    /* color: transparent; /* Make text invisible */
-    /* text-shadow: 0 0 0 #FFF; /* Use text-shadow to color the emojis white */ */
-    color: #e6e6fa; /* Set color for the numbers if they are text */
+    color: #e6e6fa !important; /* Set color for the numbers if they are text, added !important */
     display: block; /* Take full width of parent */
     width: 100%; /* Ensure it takes full width of its flex container */
     overflow-wrap: break-word; /* Ensure emojis wrap if too long, though unlikely */
