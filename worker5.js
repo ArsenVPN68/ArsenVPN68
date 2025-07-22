@@ -636,13 +636,19 @@ hr {
     display: flex; /* Use flexbox for vertical centering if needed */
     align-items: center; /* Center vertically if flex container */
     justify-content: center; /* Center horizontally if flex container */
+    background-color: #3b3b5b; /* Changed to match other panels */
+    /* Adjust margin-top to make it more in line with other panels if needed */
+    margin-top: 15px; /* Example adjustment */
+    margin-bottom: 25px; /* Example adjustment */
 }
 .panel-68-emoji {
     font-size: 5em; /* Very large font size for emojis */
     line-height: 1; /* Adjust line height to prevent extra space */
     font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif; /* Ensure emoji font is used */
-    color: transparent; /* Make text invisible */
-    text-shadow: 0 0 0 #FFF; /* Use text-shadow to color the emojis white */
+    /* Remove transparent and text-shadow for emojis to display correctly */
+    /* color: transparent; /* Make text invisible */
+    /* text-shadow: 0 0 0 #FFF; /* Use text-shadow to color the emojis white */ */
+    color: #e6e6fa; /* Set color for the numbers if they are text */
     display: block; /* Take full width of parent */
     width: 100%; /* Ensure it takes full width of its flex container */
     overflow-wrap: break-word; /* Ensure emojis wrap if too long, though unlikely */
@@ -706,6 +712,17 @@ ul li {
     font-size: 0.9em;
 }
 
+/* Footer message styling */
+.footer-message {
+    text-align: center;
+    font-size: 1.5em; /* Large font for the message */
+    margin-top: 40px; /* Space from the last element */
+    margin-bottom: 20px; /* Space at the bottom */
+    color: #8aff8a; /* Bright green, similar to headings */
+    font-weight: bold;
+}
+
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .container {
@@ -738,6 +755,9 @@ ul li {
     }
     ul li {
         font-size: 0.85em;
+    }
+    .footer-message {
+        font-size: 1.2em;
     }
 }
 
@@ -787,6 +807,9 @@ ul li {
     .btn-primary {
         width: 100%;
         margin-top: 10px;
+    }
+    .footer-message {
+        font-size: 1em;
     }
 }
 </style>
@@ -951,6 +974,9 @@ ${displayHtml}
             <br>
         </div>
     </div>
+</div>
+<div class="footer-message">
+    برو حالشو ببر 😉
 </div>
 </body>
 `;
@@ -1162,6 +1188,9 @@ ${displayHtml}
             <br>
         </div>
     </div>
+</div>
+<div class="footer-message">
+    برو حالشو ببر 😉
 </div>
 </body>
 `;
