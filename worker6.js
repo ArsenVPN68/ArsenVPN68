@@ -1,5 +1,4 @@
-//nat64\u81ea\u52a8\u586b\u5145proxyip\uff0c\u65e0\u9700\u4e14\u4e0d\u652f\u6301proxyip\u8bbe\u7f6e
-// nat64 auto-fills proxyip, no proxyip setting needed or supported.
+//nat64自动填充proxyip，无需且不支持proxyip设置
 import { connect } from "cloudflare:sockets";
 const WS_READY_STATE_OPEN = 1;
 let userID = "86c50e3a-5b87-49dd-bd20-03c7f2735e40";
@@ -7,12 +6,12 @@ const cn_hostnames = [''];
 let CDNIP = '\u0077\u0077\u0077\u002e\u0076\u0069\u0073\u0061\u002e\u0063\u006f\u006d\u002e\u0073\u0067'
 // http_ip
 let IP1 = '\u0077\u0077\u0077\u002e\u0076\u0069\u0073\u0061\u002e\u0063\u006f\u006d'
-let IP2 = '\u0063\u0069\u0073\u002e\u0076\u0069\u0073\\u0061\u002e\u0063\u006f\u006d'
-let IP3 = '\u0061\u0066\u0072\u0069\\u0063\u0061\u002e\u0076\u0069\u0073\u0061\u002e\u0063\u006f\u006d'
+let IP2 = '\u0063\u0069\u0073\u002e\u0076\u0069\u0073\u0061\u002e\u0063\u006f\u006d'
+let IP3 = '\u0061\u0066\u0072\u0069\u0063\u0061\u002e\u0076\u0069\u0073\u0061\u002e\u0063\u006f\u006d'
 let IP4 = '\u0077\u0077\u0077\u002e\u0076\u0069\u0073\u0061\u002e\u0063\u006f\u006d\u002e\u0073\u0067'
 let IP5 = '\u0077\u0077\u0077\u002e\u0076\u0069\u0073\u0061\u0065\u0075\u0072\u006f\u0070\u0065\u002e\u0061\u0074'
 let IP6 = '\u0077\u0077\u0077\u002e\u0076\u0069\u0073\u0061\u002e\u0063\u006f\u006d\u002e\u006d\u0074'
-let IP7 = '\u0071\u0061\u002e\u0076\u0069\u0073\u0061\u006d\u0069\u0064\u0064\u006c\u0065\u0065\u0061\u0073\u0074\u0065\u0072\u006e\u002e\u0063\u006f\u006d'
+let IP7 = '\u0071\u0061\u002e\u0076\u0069\u0073\u0061\u006d\u0069\u0064\u0064\u006c\u0065\u0065\u0061\u0073\u0074\u002e\u0063\u006f\u006d'
 
 // https_ip
 let IP8 = '\u0075\u0073\u0061\u002e\u0076\u0069\u0073\u0061\u002e\u0063\u006f\u006d'
@@ -232,7 +231,7 @@ async function handle\u0076\u006c\u0065\u0073\u0073WebSocket(request) {
           udpStreamWrite(rawClientData);
           return;
         } else {
-          throw new Error('UDP proxy only supports DNS (port 53)'); // Translated
+          throw new Error('UDP代理仅支持DNS(端口53)');
         }
       }
 
@@ -251,13 +250,13 @@ async function handle\u0076\u006c\u0065\u0073\u0073WebSocket(request) {
       function convertToNAT64IPv6(ipv4Address) {
         const parts = ipv4Address.split('.');
         if (parts.length !== 4) {
-          throw new Error('Invalid IPv4 address'); // Translated
+          throw new Error('无效的IPv4地址');
         }
         
         const hex = parts.map(part => {
           const num = parseInt(part, 10);
           if (num < 0 || num > 255) {
-            throw new Error('Invalid IPv4 address segment'); // Translated
+            throw new Error('无效的IPv4地址段');
           }
           return num.toString(16).padStart(2, '0');
         });
@@ -282,16 +281,16 @@ async function handle\u0076\u006c\u0065\u0073\u0073WebSocket(request) {
               return convertToNAT64IPv6(ipv4Address);
             }
           }
-          throw new Error('Unable to resolve IPv4 address for domain'); // Translated
+          throw new Error('无法解析域名的IPv4地址');
         } catch (err) {
-          throw new Error(`DNS resolution failed: ${err.message}`); // Translated
+          throw new Error(`DNS解析失败: ${err.message}`);
         }
       }
 
       async function retry() {
         try {
           const proxyIP = await getIPv6ProxyAddress(result.addressRemote);
-          console.log(`Attempting to connect via NAT64 IPv6 address ${proxyIP}...`); // Translated
+          console.log(`尝试通过NAT64 IPv6地址 ${proxyIP} 连接...`);
           const tcpSocket = await connect({
             hostname: proxyIP,
             port: result.portRemote
@@ -302,17 +301,17 @@ async function handle\u0076\u006c\u0065\u0073\u0073WebSocket(request) {
           writer.releaseLock();
 
           tcpSocket.closed.catch(error => {
-            console.error('NAT64 IPv6 connection closed error:', error); // Translated
+            console.error('NAT64 IPv6连接关闭错误:', error);
           }).finally(() => {
             if (serverWS.readyState === WS_READY_STATE_OPEN) {
-              serverWS.close(1000, 'Connection closed'); // Translated
+              serverWS.close(1000, '连接已关闭');
             }
           });
           
           pipeRemoteToWebSocket(tcpSocket, serverWS, \u0076\u006c\u0065\u0073\u0073RespHeader, null);
         } catch (err) {
-          console.error('NAT64 IPv6 connection failed:', err); // Translated
-          serverWS.close(1011, 'NAT64 IPv6 connection failed: ' + err.message); // Translated
+          console.error('NAT64 IPv6连接失败:', err);
+          serverWS.close(1011, 'NAT64 IPv6连接失败: ' + err.message);
         }
       }
 
@@ -320,8 +319,8 @@ async function handle\u0076\u006c\u0065\u0073\u0073WebSocket(request) {
         const tcpSocket = await connectAndWrite(result.addressRemote, result.portRemote);
         pipeRemoteToWebSocket(tcpSocket, serverWS, \u0076\u006c\u0065\u0073\u0073RespHeader, retry);
       } catch (err) {
-        console.error('Connection failed:', err); // Translated
-        serverWS.close(1011, 'Connection failed'); // Translated
+        console.error('连接失败:', err);
+        serverWS.close(1011, '连接失败');
       }
     },
     close() {
@@ -330,9 +329,9 @@ async function handle\u0076\u006c\u0065\u0073\u0073WebSocket(request) {
       }
     }
   })).catch(err => {
-    console.error('WebSocket Error:', err); // Translated
+    console.error('WebSocket 错误:', err);
     closeSocket(remoteSocket);
-    serverWS.close(1011, 'Internal Error'); // Translated
+    serverWS.close(1011, '内部错误');
   });
 
   return new Response(null, {
@@ -370,7 +369,7 @@ function createWebSocketReadableStream(ws, earlyDataHeader) {
 
 function parse\u0076\u006c\u0065\u0073\u0073Header(buffer, userID) {
   if (buffer.byteLength < 24) {
-    return { hasError: true, message: 'Invalid header length' }; // Translated
+    return { hasError: true, message: '无效的头部长度' };
   }
   
   const view = new DataView(buffer);
@@ -378,7 +377,7 @@ function parse\u0076\u006c\u0065\u0073\u0073Header(buffer, userID) {
   
   const uuid = formatUUID(new Uint8Array(buffer.slice(1, 17)));
   if (uuid !== userID) {
-    return { hasError: true, message: 'Invalid user' }; // Translated
+    return { hasError: true, message: '无效的用户' };
   }
   
   const optionsLength = view.getUint8(17);
@@ -391,7 +390,7 @@ function parse\u0076\u006c\u0065\u0073\u0073Header(buffer, userID) {
 
     isUDP = true;
   } else {
-    return { hasError: true, message: 'Unsupported command, only TCP(01) and UDP(02) are supported' }; // Translated
+    return { hasError: true, message: '不支持的命令，仅支持TCP(01)和UDP(02)' };
   }
   
   let offset = 19 + optionsLength;
@@ -407,7 +406,7 @@ function parse\u0076\u006c\u0065\u0073\u0073Header(buffer, userID) {
       offset += 4;
       break;
       
-    case 2: // Domain
+    case 2: // 域名
       const domainLength = view.getUint8(offset++);
       address = new TextDecoder().decode(buffer.slice(offset, offset + domainLength));
       offset += domainLength;
@@ -423,7 +422,7 @@ function parse\u0076\u006c\u0065\u0073\u0073Header(buffer, userID) {
       break;
       
     default:
-      return { hasError: true, message: 'Unsupported address type' }; // Translated
+      return { hasError: true, message: '不支持的地址类型' };
   }
   
   return {
@@ -461,17 +460,17 @@ function pipeRemoteToWebSocket(remoteSocket, ws, \u0076\u006c\u0065\u0073\u0073H
         return;
       }
       if (ws.readyState === WS_READY_STATE_OPEN) {
-        ws.close(1000, 'Normal closure'); // Translated
+        ws.close(1000, '正常关闭');
       }
     },
     abort() {
       closeSocket(remoteSocket);
     }
   })).catch(err => {
-    console.error('Data forwarding error:', err); // Translated
+    console.error('数据转发错误:', err);
     closeSocket(remoteSocket);
     if (ws.readyState === WS_READY_STATE_OPEN) {
-      ws.close(1011, 'Data transfer error'); // Translated
+      ws.close(1011, '数据传输错误');
     }
   });
 }
@@ -525,7 +524,7 @@ async function handleUDPOutBound(webSocket, \u0076\u006c\u0065\u0073\u0073Respon
       const udpSizeBuffer = new Uint8Array([(udpSize >> 8) & 0xff, udpSize & 0xff]);
       
       if (webSocket.readyState === WS_READY_STATE_OPEN) {
-        console.log(`DNS query successful, DNS message length is ${udpSize}`); // Translated
+        console.log(`DNS查询成功，DNS消息长度为 ${udpSize}`);
         if (is\u0076\u006c\u0065\u0073\u0073HeaderSent) {
           webSocket.send(await new Blob([udpSizeBuffer, dnsQueryResult]).arrayBuffer());
         } else {
@@ -535,7 +534,7 @@ async function handleUDPOutBound(webSocket, \u0076\u006c\u0065\u0073\u0073Respon
       }
     }
   })).catch((error) => {
-    console.error('DNS UDP processing error:', error); // Translated
+    console.error('DNS UDP处理错误:', error);
   });
 
   const writer = transformStream.writable.getWriter();
@@ -553,16 +552,9 @@ async function handleUDPOutBound(webSocket, \u0076\u006c\u0065\u0073\u0073Respon
  * @returns {string}
  */
 function get\u0076\u006c\u0065\u0073\u0073Config(userID, hostName) {
-  const w\u0076\u006c\u0065\u0073\u0073ws = `\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${CDNIP}:8880?encryption=none&security=none&type=ws&host=${hostName}&path=%2F%3Fed%3D68#${hostName}`;
-  const p\u0076\u006c\u0065\u0073\u0073wstls = `\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${CDNIP}:8443?encryption=none&security=tls&type=ws&host=${hostName}&sni=${hostName}&fp=random&path=%2F%3Fed%3D68#${hostName}`;
-  
-  // تغییرات برای ایموجی و کادربندی
-  const note = `
-    <div class="panel-68-container">
-        <span class="panel-68-emoji">💪6️⃣8️⃣</span>
-    </div>
-  `;
-  
+  const w\u0076\u006c\u0065\u0073\u0073ws = `\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${CDNIP}:8880?encryption=none&security=none&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#${hostName}`;
+  const p\u0076\u006c\u0065\u0073\u0073wstls = `\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${CDNIP}:8443?encryption=none&security=tls&type=ws&host=${hostName}&sni=${hostName}&fp=random&path=%2F%3Fed%3D2560#${hostName}`;
+  const note = `甬哥博客地址：https://ygkkk.blogspot.com\n甬哥YouTube频道：https://www.youtube.com/@ygkkk\n甬哥TG电报群组：https://t.me/ygkkktg\n甬哥TG电报频道：https://t.me/ygkkktgpd\n\nProxyIP使用nat64自动生成，无需设置`;
   const ty = `https://${hostName}/${userID}/ty`
   const cl = `https://${hostName}/${userID}/cl`
   const sb = `https://${hostName}/${userID}/sb`
@@ -570,10 +562,10 @@ function get\u0076\u006c\u0065\u0073\u0073Config(userID, hostName) {
   const pcl = `https://${hostName}/${userID}/pcl`
   const psb = `https://${hostName}/${userID}/psb`
 
-  const wk\u0076\u006c\u0065\u0073\u0073share = btoa(`\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP1}:${PT1}?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V1_${IP1}_${PT1}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP2}:${PT2}?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V2_${IP2}_${PT2}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP3}:${PT3}?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V3_${IP3}_${PT3}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP4}:${PT4}?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V4_${IP4}_${PT4}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP5}:${PT5}?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V5_${IP5}_${PT5}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP6}:${PT6}?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V6_${IP6}_${PT6}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP7}:${PT7}?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V7_${IP7}_${PT7}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP8}:${PT8}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V8_${IP8}_${PT8}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP9}:${PT9}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V9_${IP9}_${PT9}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP10}:${PT10}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V10_${IP10}_${PT10}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP11}:${PT11}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V11_${IP11}_${PT11}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP12}:${PT12}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V12_${IP12}_${PT12}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP13}:${PT13}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V13_${IP13}_${PT13}`);
+  const wk\u0076\u006c\u0065\u0073\u0073share = btoa(`\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP1}:${PT1}?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V1_${IP1}_${PT1}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP2}:${PT2}?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V2_${IP2}_${PT2}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP3}:${PT3}?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V3_${IP3}_${PT3}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP4}:${PT4}?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V4_${IP4}_${PT4}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP5}:${PT5}?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V5_${IP5}_${PT5}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP6}:${PT6}?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V6_${IP6}_${PT6}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP7}:${PT7}?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V7_${IP7}_${PT7}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP8}:${PT8}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V8_${IP8}_${PT8}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP9}:${PT9}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V9_${IP9}_${PT9}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP10}:${PT10}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V10_${IP10}_${PT10}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP11}:${PT11}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V11_${IP11}_${PT11}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP12}:${PT12}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V12_${IP12}_${PT12}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP13}:${PT13}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V13_${IP13}_${PT13}`);
 
 
-  const pg\u0076\u006c\u0065\u0073\u0073share = btoa(`\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP8}:${PT8}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V8_${IP8}_${PT8}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP9}:${PT9}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V9_${IP9}_${PT9}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP10}:${PT10}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V10_${IP10}_${PT10}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP11}:${PT11}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V11_${IP11}_${PT11}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP12}:${PT12}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V12_${IP12}_${PT12}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP13}:${PT13}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Ded%3D68#CF_V13_${IP13}_${PT13}`);	
+  const pg\u0076\u006c\u0065\u0073\u0073share = btoa(`\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP8}:${PT8}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V8_${IP8}_${PT8}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP9}:${PT9}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V9_${IP9}_${PT9}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP10}:${PT10}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V10_${IP10}_${PT10}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP11}:${PT11}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V11_${IP11}_${PT11}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP12}:${PT12}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V12_${IP12}_${PT12}\n\u0076\u006c\u0065\u0073\u0073\u003A//${userID}\u0040${IP13}:${PT13}?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#CF_V13_${IP13}_${PT13}`);	
 
 	
   const noteshow = note.replace(/\n/g, '<br>');
@@ -581,233 +573,21 @@ function get\u0076\u006c\u0065\u0073\u0073Config(userID, hostName) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VLESS Proxy Configuration</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <style>
-/* Keyframes for blinking effect */
-@keyframes blink-border {
-    0% { border-color: #4CAF50; } /* Green */
-    25% { border-color: #2196F3; } /* Blue */
-    50% { border-color: #FFC107; } /* Amber */
-    75% { border-color: #F44336; } /* Red */
-    100% { border-color: #4CAF50; } /* Back to Green */
-}
-
-body {
-    background-color: #1c1c2e; /* Deep dark blue */
-    color: #e6e6fa; /* Lavender blush for text */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 10px; /* Reduced padding for smaller screens */
-    line-height: 1.6;
-}
-.container {
-    background-color: #2a2a4a; /* Darker slate blue for container */
-    border-radius: 15px;
-    padding: 20px; /* Adjusted padding for responsiveness */
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-h1, h3 {
-    color: #8aff8a; /* Bright green for headings */
-    text-align: center;
-    margin-bottom: 25px;
-    font-weight: 700;
-}
-hr {
-    border-top: 2px solid #5a5a8a; /* Subtle separator */
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-
-/* Panel 68 specific styling */
-.panel-68-container {
-    text-align: center; /* Center the content horizontally */
-    margin: 30px auto; /* Center the div itself */
-    padding: 15px 25px;
-    border: 5px solid; /* Border for animation */
-    border-image: linear-gradient(to right, #4CAF50, #2196F3) 1; /* Initial gradient */
-    border-radius: 12px;
-    width: fit-content; /* Make container fit content for better centering with auto margins */
-    max-width: 90%; /* Ensure it doesn't overflow on small screens */
-    animation: blink-border 4s infinite linear; /* Blinking animation */
-    box-shadow: 0 0 15px rgba(138, 255, 138, 0.7); /* Green glow */
-    display: flex; /* Use flexbox for vertical centering if needed */
-    align-items: center; /* Center vertically if flex container */
-    justify-content: center; /* Center horizontally if flex container */
-    background-color: #3b3b5b !important; /* Changed to match other panels, added !important */
-    /* Adjust margin-top to make it more in line with other panels if needed */
-    margin-top: 15px; /* Example adjustment */
-    margin-bottom: 25px; /* Example adjustment */
-}
-.panel-68-emoji {
-    font-size: 5em; /* Very large font size for emojis */
-    line-height: 1; /* Adjust line height to prevent extra space */
-    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif; /* Ensure emoji font is used */
-    color: #e6e6fa !important; /* Set color for the numbers if they are text, added !important */
-    display: block; /* Take full width of parent */
-    width: 100%; /* Ensure it takes full width of its flex container */
-    overflow-wrap: break-word; /* Ensure emojis wrap if too long, though unlikely */
-    word-break: break-all; /* For very long strings, though not applicable to emojis */
-}
-
-
-.table {
-    background-color: #3b3b5b; /* Darker purple for table background */
-    border-radius: 10px;
-    overflow: hidden; /* Ensures rounded corners apply to content */
-    margin-bottom: 30px;
-    width: 100%; /* Ensure table takes full width */
-    max-width: 100%; /* Prevent overflow on small screens */
-}
-.table th, .table td {
-    border-color: #5a5a8a; /* Matching border color */
-    color: #e6e6fa;
-    padding: 12px 15px;
-    vertical-align: middle;
-    font-size: 0.95em; /* Slightly smaller font for tables */
-}
-.table thead th {
-    background-color: #4a4a70; /* Even darker purple for table header */
-    color: #ffffff;
-    font-weight: bold;
-}
-.table tbody tr:nth-child(even) {
-    background-color: #404060; /* Alternate row color */
-}
 .limited-width {
-    max-width: 300px; /* Increased width for better readability on larger screens */
-    overflow-wrap: break-word; /* Use overflow-wrap for better word breaking */
-    word-break: break-all; /* Break long strings */
-    font-size: 0.85em; /* Smaller font to fit content */
+    max-width: 200px;
+    overflow: auto;
+    word-wrap: break-word;
 }
-.btn-primary {
-    background-color: #007bff; /* Blue for primary button */
-    border-color: #007bff;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: bold;
-}
-.btn-primary:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-    border-color: #004085;
-    transform: translateY(-2px); /* Slight lift effect */
-    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4); /* Blue glow on hover */
-}
-ul {
-    list-style-type: none;
-    padding-left: 0;
-}
-ul li {
-    background-color: #3b3b5b;
-    margin-bottom: 8px;
-    padding: 10px 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    font-size: 0.9em;
+/* Styles for the boxes with unreadable text */
+.panel-68-container {
+    background-color: #3b3b5b !important; /* Dark purple background */
 }
 
-/* Footer message styling */
-.footer-message {
-    text-align: center;
-    font-size: 1.5em; /* Large font for the message */
-    margin-top: 40px; /* Space from the last element */
-    margin-bottom: 20px; /* Space at the bottom */
-    color: #8aff8a; /* Bright green, similar to headings */
-    font-weight: bold;
-}
-
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .container {
-        padding: 15px;
-    }
-    h1 {
-        font-size: 1.8em;
-    }
-    h3 {
-        font-size: 1.4em;
-    }
-    .panel-68-emoji {
-        font-size: 3.5em; /* Smaller on mobile */
-    }
-    .panel-68-container {
-        padding: 10px 15px;
-        border-width: 3px;
-    }
-    .table th, .table td {
-        padding: 8px 10px;
-        font-size: 0.8em; /* Smaller table font */
-    }
-    .limited-width {
-        max-width: 100%; /* Allow full width on small screens */
-        font-size: 0.75em;
-    }
-    .btn-primary {
-        padding: 8px 15px;
-        font-size: 0.9em;
-    }
-    ul li {
-        font-size: 0.85em;
-    }
-    .footer-message {
-        font-size: 1.2em;
-    }
-}
-
-@media (max-width: 576px) {
-    body {
-        padding: 5px;
-    }
-    .container {
-        border-radius: 10px;
-        padding: 10px;
-    }
-    h1 {
-        font-size: 1.5em;
-    }
-    h3 {
-        font-size: 1.2em;
-    }
-    .panel-68-emoji {
-        font-size: 2.5em; /* Even smaller on very small screens */
-    }
-    .panel-68-container {
-        margin: 20px auto;
-        padding: 8px 10px;
-        border-width: 2px;
-    }
-    .table th, .table td {
-        display: block; /* Stack table cells */
-        width: 100%;
-        text-align: left !important;
-        border-bottom: 1px solid #5a5a8a;
-    }
-    .table thead {
-        display: none; /* Hide table header on very small screens */
-    }
-    .table tbody tr {
-        margin-bottom: 15px;
-        display: block;
-        border: 1px solid #5a5a8a;
-        border-radius: 10px;
-    }
-    .table tbody tr td:last-child {
-        border-bottom: none;
-    }
-    .limited-width {
-        font-size: 0.8em;
-    }
-    .btn-primary {
-        width: 100%;
-        margin-top: 10px;
-    }
-    .footer-message {
-        font-size: 1em;
-    }
+.panel-68-emoji {
+    color: #e6e6fa !important; /* Light lilac/white-purple text */
 }
 </style>
 </head>
@@ -821,7 +601,7 @@ function copyToClipboard(text) {
   input.select();
   document.execCommand('Copy');
   document.body.removeChild(input);
-  alert('لینک با موفقیت کپی شد!'); // Translated to Persian
+  alert('已复制到剪贴板');
 }
 </script>
 `;
@@ -834,362 +614,424 @@ ${displayHtml}
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h1>Cloudflare-workers/pages-VLESS Proxy Script V25.5.27</h1>
-	    <hr>
-            ${noteshow}
+            <h1>Cloudflare-workers/pages-\u0076\u006c\u0065\u0073\u0073代理脚本 V25.5.27</h1>
             <hr>
-	    <hr>
-	    <hr>
-            <br>
-            <br>
-            <h3>1: CF-workers-VLESS+WS Node</h3>
-			<table class="table">
-				<thead>
-					<tr>
-						<th>ویژگی‌های نود:</th>
-						<th>لینک نود تک:</th>
-						<th>کپی لینک</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td class="limited-width">رمزگذاری TLS غیرفعال است، مسدودسازی دامنه را نادیده می‌گیرد</td>
-						<td class="limited-width">${w\u0076\u006c\u0065\u0073\u0073ws}</td>
-						<td><button class="btn btn-primary" onclick="copyToClipboard('${w\u0076\u006c\u0065\u0073\u0073ws}')">برای کپی لینک کلیک کنید</button></td>
-					</tr>
-				</tbody>
-			</table>
-            <h5>پارامترهای کلاینت:</h5>
-            <ul>
-                <li>آدرس کلاینت (address): دامنه سفارشی یا دامنه بهینه یا IP بهینه یا IP پروکسی معکوس</li>
-                <li>پورت (port): 7 پورت HTTP قابل انتخاب (80, 8080, 8880, 2052, 2082, 2086, 2095)، یا پورت متناظر IP پروکسی معکوس</li>
-                <li>شناسه کاربری (uuid): ${userID}</li>
-                <li>پروتکل انتقال (network): ws یا websocket</li>
-                <li>دامنه جعلی (host): ${hostName}</li>
-                <li>مسیر (path): /?ed=68</li>
-                <li>امنیت انتقال (TLS): غیرفعال</li>
-            </ul>
+            <p>${noteshow}</p>
             <hr>
             <hr>
             <hr>
             <br>
             <br>
-            <h3>2: CF-workers-VLESS+WS+TLS Node</h3>
+            <h3>1：CF-workers-\u0076\u006c\u0065\u0073\u0073+ws节点</h3>
             <table class="table">
                 <thead>
                     <tr>
-                        <th>ویژگی‌های نود:</th>
-                        <th>لینک نود تک:</th>
-                        <th>کپی لینک</th>
+                        <th>节点特色：</th>
+                        <th>单节点链接如下：</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="limited-width">رمزگذاری TLS فعال است،<br>اگر کلاینت از تکه‌تکه شدن پشتیبانی می‌کند، توصیه می‌شود برای جلوگیری از مسدود شدن دامنه آن را فعال کنید.</td>
-                        <td class="limited-width">${p\u0076\u006c\u0065\u0073\u0073wstls}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${p\u0076\u006c\u0065\u0073\u0073wstls}')">برای کپی لینک کلیک کنید</button></td>
-                    </tr>
-                </tbody>
-            </table>
-            <h5>پارامترهای کلاینت:</h5>
-            <ul>
-                <li>آدرس کلاینت (address): دامنه سفارشی یا دامنه بهینه یا IP بهینه یا IP پروکسی معکوس</li>
-                <li>پورت (port): 6 پورت HTTPS قابل انتخاب (443, 8443, 2053, 2083, 2087, 2096)، یا پورت متناظر IP پروکسی معکوس</li>
-                <li>شناسه کاربری (uuid): ${userID}</li>
-                <li>پروتکل انتقال (network): ws یا websocket</li>
-                <li>دامنه جعلی (host): ${hostName}</li>
-                <li>مسیر (path): /?ed=68</li>
-                <li>امنیت انتقال (TLS): فعال</li>
-                <li>نادیده گرفتن تأیید گواهی (allowInsecure): false</li>
-            </ul>
-            <hr>
-            <hr>
-            <hr>
-            <br>
-            <br>
-            <h3>3: جمع‌آوری لینک‌های اشتراک عمومی، Clash-meta، Sing-box:</h3>
-            <hr>
-            <p>توجه:<br>1. هر لینک اشتراک به طور پیش‌فرض شامل 13 نود پورت (TLS + غیر TLS) است.<br>2. دامنه کارگران فعلی به عنوان یک لینک اشتراک نیاز به به‌روزرسانی از طریق پروکسی دارد.<br>3. اگر کلاینت مورد استفاده از تکه‌تکه شدن پشتیبانی نمی‌کند، نودهای TLS ممکن است در دسترس نباشند.</p>
-            <hr>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>لینک اشتراک‌گذاری عمومی (قابل ایمپورت مستقیم در کلاینت):</th>
-                        <th>کپی لینک</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="limited-width">${wk\u0076\u006c\u0065\u0073\u0073share}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${wk\u0076\u006c\u0065\u0073\u0073share}')">برای کپی لینک کلیک کنید</button></td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>لینک اشتراک عمومی:</th>
-                        <th>کپی لینک</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="limited-width">${ty}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${ty}')">برای کپی لینک کلیک کنید</button></td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>لینک اشتراک Clash-meta:</th>
-                        <th>کپی لینک</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="limited-width">${cl}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${cl}')">برای کپی لینک کلیک کنید</button></td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>لینک اشتراک Sing-box:</th>
-                        <th>کپی لینک</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="limited-width">${sb}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${sb}')">برای کپی لینک کلیک کنید</button></td>
-                    </tr>
-                </tbody>
-            </table>
-            <br>
-            <br>
-        </div>
-    </div>
-</div>
-<div class="footer-message">
-    برو حالشو ببر 😉
-</div>
-</body>
-`;
-} else {
-return `
-<br>
-<br>
-${displayHtml}
-<body>
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h1>Cloudflare-workers/pages-VLESS Proxy Script V25.5.27</h1>
-            <hr>
-            ${noteshow}
-            <hr>
-            <hr>
-            <hr>
-            <br>
-            <br>
-            <h3>1: CF-pages/workers/Custom Domain-VLESS+WS Node</h3>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>ویژگی‌های نود:</th>
-                        <th>لینک نود تک:</th>
-                        <th>کپی لینک</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="limited-width">رمزگذاری TLS غیرفعال است، مسدودسازی دامنه را نادیده می‌گیرد</td>
+                        <td class="limited-width">关闭了TLS加密，无视域名阻断</td>
                         <td class="limited-width">${w\u0076\u006c\u0065\u0073\u0073ws}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${w\u0076\u006c\u0065\u0073\u0073ws}')">برای کپی لینک کلیک کنید</button></td>
+                        <td><button class="btn btn-primary" onclick="copyToClipboard('${w\u0076\u006c\u0065\u0073\u0073ws}')">点击复制链接</button></td>
                     </tr>
                 </tbody>
             </table>
-            <h5>پارامترهای کلاینت:</h5>
+            <h5>客户端参数如下：</h5>
             <ul>
-                <li>آدرس کلاینت (address): دامنه سفارشی یا دامنه بهینه یا IP بهینه یا IP پروکسی معکوس</li>
-                <li>پورت (port): 7 پورت HTTP قابل انتخاب (80, 8080, 8880, 2052, 2082, 2086, 2095)، یا پورت متناظر IP پروکسی معکوس</li>
-                <li>شناسه کاربری (uuid): ${userID}</li>
-                <li>پروتکل انتقال (network): ws یا websocket</li>
-                <li>دامنه جعلی (host): ${hostName}</li>
-                <li>مسیر (path): /?ed=68</li>
-                <li>امنیت انتقال (TLS): غیرفعال</li>
+                <li>客户端地址(address)：自定义的域名 或者 优选域名 或者 优选IP 或者 反代IP</li>
+                <li>端口(port)：7个http端口可任意选择(80、8080、8880、2052、2082、2086、2095)，或反代IP对应端口</li>
+                <li>用户ID(uuid)：${userID}</li>
+                <li>传输协议(network)：ws 或者 websocket</li>
+                <li>伪装域名(host)：${hostName}</li>
+                <li>路径(path)：/?ed=2560</li>
+                <li>传输安全(TLS)：关闭</li>
             </ul>
             <hr>
             <hr>
             <hr>
             <br>
             <br>
-            <h3>2: CF-pages/workers/Custom Domain-VLESS+WS+TLS Node</h3>
+            <h3>2：CF-workers-\u0076\u006c\u0065\u0073\u0073+ws+tls节点</h3>
             <table class="table">
                 <thead>
                     <tr>
-                        <th>ویژگی‌های نود:</th>
-                        <th>لینک نود تک:</th>
-                        <th>کپی لینک</th>
+                        <th>节点特色：</th>
+                        <th>单节点链接如下：</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="limited-width">رمزگذاری TLS فعال است،<br>اگر کلاینت از تکه‌تکه شدن پشتیبانی می‌کند، توصیه می‌شود برای جلوگیری از مسدود شدن دامنه آن را فعال کنید.</td>
+                        <td class="limited-width">启用了TLS加密，<br>如果客户端支持分片(Fragment)功能，建议开启，防止域名阻断</td>
                         <td class="limited-width">${p\u0076\u006c\u0065\u0073\u0073wstls}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${p\u0076\u006c\u0065\u0073\u0073wstls}')">برای کپی لینک کلیک کنید</button></td>
+                        <td><button class="btn btn-primary" onclick="copyToClipboard('${p\u0076\u006c\u0065\u0073\u0073wstls}')">点击复制链接</button></td>
                     </tr>
                 </tbody>
             </table>
-            <h5>پارامترهای کلاینت:</h5>
+            <h5>客户端参数如下：</h5>
             <ul>
-                <li>آدرس کلاینت (address): دامنه سفارشی یا دامنه بهینه یا IP بهینه یا IP پروکسی معکوس</li>
-                <li>پورت (port): 6 پورت HTTPS قابل انتخاب (443, 8443, 2053, 2083, 2087, 2096)، یا پورت متناظر IP پروکسی معکوس</li>
-                <li>شناسه کاربری (uuid): ${userID}</li>
-                <li>پروتکل انتقال (network): ws یا websocket</li>
-                <li>دامنه جعلی (host): ${hostName}</li>
-                <li>مسیر (path): /?ed=68</li>
-                <li>امنیت انتقال (TLS): فعال</li>
-                <li>نادیده گرفتن تأیید گواهی (allowInsecure): false</li>
+                <li>客户端地址(address)：自定义的域名 或者 优选域名 或者 优选IP 或者 反代IP</li>
+                <li>端口(port)：6个https端口可任意选择(443、8443、2053、2083、2087、2096)，或反代IP对应端口</li>
+                <li>用户ID(uuid)：${userID}</li>
+                <li>传输协议(network)：ws 或者 websocket</li>
+                <li>伪装域名(host)：${hostName}</li>
+                <li>路径(path)：/?ed=2560</li>
+                <li>传输安全(TLS)：开启</li>
+                <li>跳过证书验证(allowlnsecure)：false</li>
             </ul>
             <hr>
             <hr>
             <hr>
             <br>
             <br>
-            <h3>3: جمع‌آوری لینک‌های اشتراک عمومی، Clash-meta، Sing-box:</h3>
+            <h3>3：聚合通用、Clash-meta、Sing-box订阅链接如下：</h3>
             <hr>
-            <p>توجه:<br>1. هر لینک اشتراک به طور پیش‌فرض شامل 13 نود پورت (TLS + غیر TLS) است.<br>2. دامنه کارگران فعلی به عنوان یک لینک اشتراک نیاز به به‌روزرسانی از طریق پروکسی دارد.<br>3. اگر کلاینت مورد استفاده از تکه‌تکه شدن پشتیبانی نمی‌کند، نودهای TLS ممکن است در دسترس نباشند.</p>
+            <p>注意：<br>1、默认每个订阅链接包含TLS+非TLS共13个端口节点<br>2、当前workers域名作为订阅链接，需通过代理进行订阅更新<br>3、如使用的客户端不支持分片功能，则TLS节点不可用</p>
             <hr>
             <table class="table">
                 <thead>
                     <tr>
-                        <th>لینک اشتراک‌گذاری پورت‌های HTTP (قابل ایمپورت مستقیم در کلاینت):</th>
-                        <th>کپی لینک</th>
+                        <th>聚合通用分享链接 (可直接导入客户端)：</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="limited-width">${wk\u0076\u006c\u0065\u0073\u0073share}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${wk\u0076\u006c\u0065\u0073\u0073share}')">برای کپی لینک کلیک کنید</button></td>
+                        <td><button class="btn btn-primary" onclick="copyToClipboard('${wk\u0076\u006c\u0065\u0073\u0073share}')">点击复制链接</button></td>
                     </tr>
                 </tbody>
             </table>
             <table class="table">
                 <thead>
                     <tr>
-                        <th>لینک اشتراک‌گذاری پورت‌های HTTPS (قابل ایمپورت مستقیم در کلاینت):</th>
-                        <th>کپی لینک</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="limited-width">${pg\u0076\u006c\u0065\u0073\u0073share}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${pg\u0076\u006c\u0065\u0073\u0073share}')">برای کپی لینک کلیک کنید</button></td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>لینک اشتراک عمومی:</th>
-                        <th>کپی لینک</th>
+                        <th>聚合通用订阅链接：</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td class="limited-width">${ty}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${ty}')">برای کپی لینک کلیک کنید</button></td>
+                        <td><button class="btn btn-primary" onclick="copyToClipboard('${ty}')">点击复制链接</button></td>
                     </tr>
                 </tbody>
             </table>
+            <br>
+            <br>
             <table class="table">
                 <thead>
                     <tr>
-                        <th>لینک اشتراک Clash-meta:</th>
-                        <th>کپی لینک</th>
+                        <th>Clash-meta订阅链接：</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td class="limited-width">${cl}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${cl}')">برای کپی لینک کلیک کنید</button></td>
+                        <td><button class="btn btn-primary" onclick="copyToClipboard('${cl}')">点击复制链接</button></td>
                     </tr>
                 </tbody>
             </table>
+            <br>
+            <br>
             <table class="table">
                 <thead>
                     <tr>
-                        <th>لینک اشتراک Sing-box:</th>
-                        <th>کپی لینک</th>
+                        <th>Sing-box订阅链接：</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td class="limited-width">${sb}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${sb}')">برای کپی لینک کلیک کنید</button></td>
+                        <td><button class="btn btn-primary" onclick="copyToClipboard('${sb}')">点击复制链接</button></td>
                     </tr>
                 </tbody>
             </table>
-            <br>
-            <br>
-            <h3>4: جمع‌آوری لینک‌های اشتراک عمومی، Clash-meta، Sing-box از طریق پروکسی:</h3>
             <hr>
-            <p>توجه:<br>1. هر لینک اشتراک به طور پیش‌فرض شامل 13 نود پورت (TLS + غیر TLS) است.<br>2. دامنه کارگران فعلی به عنوان یک لینک اشتراک نیاز به به‌روزرسانی از طریق پروکسی دارد.<br>3. اگر کلاینت مورد استفاده از تکه‌تکه شدن پشتیبانی نمی‌کند، نودهای TLS ممکن است در دسترس نباشند.</p>
+            <hr>
+            <hr>
+            <h3>4：聚合通用、Clash-meta、Sing-box订阅链接如下(优选):</h3>
+            <hr>
+            <p>注意：<br>1、默认每个订阅链接包含TLS+非TLS共13个端口节点<br>2、当前workers域名作为订阅链接，需通过代理进行订阅更新<br>3、如使用的客户端不支持分片功能，则TLS节点不可用</p>
             <hr>
             <table class="table">
                 <thead>
                     <tr>
-                        <th>لینک اشتراک عمومی از طریق پروکسی:</th>
-                        <th>کپی لینک</th>
+                        <th>聚合通用分享链接 (可直接导入客户端)：</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><button class="btn btn-primary" onclick="copyToClipboard('${pg\u0076\u006c\u0065\u0073\u0073share}')">点击复制链接</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>聚合通用订阅链接：</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td class="limited-width">${pty}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${pty}')">برای کپی لینک کلیک کنید</button></td>
+                        <td><button class="btn btn-primary" onclick="copyToClipboard('${pty}')">点击复制链接</button></td>
                     </tr>
                 </tbody>
             </table>
+            <br>
+            <br>
             <table class="table">
                 <thead>
                     <tr>
-                        <th>لینک اشتراک Clash-meta از طریق پروکسی:</th>
-                        <th>کپی لینک</th>
+                        <th>Clash-meta订阅链接：</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td class="limited-width">${pcl}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${pcl}')">برای کپی لینک کلیک کنید</button></td>
+                        <td><button class="btn btn-primary" onclick="copyToClipboard('${pcl}')">点击复制链接</button></td>
                     </tr>
                 </tbody>
             </table>
+            <br>
+            <br>
             <table class="table">
                 <thead>
                     <tr>
-                        <th>لینک اشتراک Sing-box از طریق پروکسی:</th>
-                        <th>کپی لینک</th>
+                        <th>Sing-box订阅链接：</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td class="limited-width">${psb}</td>
-                        <td><button class="btn btn-primary" onclick="copyToClipboard('${psb}')">برای کپی لینک کلیک کنید</button></td>
+                        <td><button class="btn btn-primary" onclick="copyToClipboard('${psb}')">点击复制链接</button></td>
                     </tr>
                 </tbody>
             </table>
-            <br>
-            <br>
+            <hr>
+            <hr>
+            <hr>
+            <p>技术支持：<br>
+                <a href="https://ygkkk.blogspot.com" target="_blank">甬哥博客地址</a><br>
+                <a href="https://www.youtube.com/@ygkkk\n甬哥TG电报群组：https://t.me/ygkkktg\n甬哥TG电报频道：https://t.me/ygkkktgpd\n\nProxyIP使用nat64自动生成，无需设置" target="_blank">甬哥YouTube频道</a>
+            </p>
         </div>
     </div>
 </div>
-<div class="footer-message">
-    برو حالشو ببر 😉
-</div>
 </body>
+</html>
 `;
+} else {
+  return `
+  <br>
+  <br>
+  ${displayHtml}
+  <body>
+  <div class="container">
+      <div class="row">
+          <div class="col-md-12">
+              <h1>Cloudflare-workers/pages-\u0076\u006c\u0065\u0073\u0073代理脚本 V25.5.27</h1>
+              <hr>
+              <p>${noteshow}</p>
+              <hr>
+              <hr>
+              <hr>
+              <br>
+              <br>
+              <h3>1：CF-workers-\u0076\u006c\u0065\u0073\u0073+ws节点</h3>
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>节点特色：</th>
+                          <th>单节点链接如下：</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <td class="limited-width">关闭了TLS加密，无视域名阻断</td>
+                          <td class="limited-width">${w\u0076\u006c\u0065\u0073\u0073ws}</td>
+                          <td><button class="btn btn-primary" onclick="copyToClipboard('${w\u0076\u006c\u0065\u0073\u0073ws}')">点击复制链接</button></td>
+                      </tr>
+                  </tbody>
+              </table>
+              <h5>客户端参数如下：</h5>
+              <ul>
+                  <li>客户端地址(address)：自定义的域名 或者 优选域名 或者 优选IP 或者 反代IP</li>
+                  <li>端口(port)：7个http端口可任意选择(80、8080、8880、2052、2082、2086、2095)，或反代IP对应端口</li>
+                  <li>用户ID(uuid)：${userID}</li>
+                  <li>传输协议(network)：ws 或者 websocket</li>
+                  <li>伪装域名(host)：${hostName}</li>
+                  <li>路径(path)：/?ed=2560</li>
+                  <li>传输安全(TLS)：关闭</li>
+              </ul>
+              <hr>
+              <hr>
+              <hr>
+              <br>
+              <br>
+              <h3>2：CF-workers-\u0076\u006c\u0065\u0073\u0073+ws+tls节点</h3>
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>节点特色：</th>
+                          <th>单节点链接如下：</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <td class="limited-width">启用了TLS加密，<br>如果客户端支持分片(Fragment)功能，建议开启，防止域名阻断</td>
+                          <td class="limited-width">${p\u0076\u006c\u0065\u0073\u0073wstls}</td>
+                          <td><button class="btn btn-primary" onclick="copyToClipboard('${p\u0076\u006c\u0065\u0073\u0073wstls}')">点击复制链接</button></td>
+                      </tr>
+                  </tbody>
+              </table>
+              <h5>客户端参数如下：</h5>
+              <ul>
+                  <li>客户端地址(address)：自定义的域名 或者 优选域名 或者 优选IP 或者 反代IP</li>
+                  <li>端口(port)：6个https端口可任意选择(443、8443、2053、2083、2087、2096)，或反代IP对应端口</li>
+                  <li>用户ID(uuid)：${userID}</li>
+                  <li>传输协议(network)：ws 或者 websocket</li>
+                  <li>伪装域名(host)：${hostName}</li>
+                  <li>路径(path)：/?ed=2560</li>
+                  <li>传输安全(TLS)：开启</li>
+                  <li>跳过证书验证(allowlnsecure)：false</li>
+              </ul>
+              <hr>
+              <hr>
+              <hr>
+              <br>
+              <br>
+              <h3>3：聚合通用、Clash-meta、Sing-box订阅链接如下：</h3>
+              <hr>
+              <p>注意：<br>1、默认每个订阅链接包含TLS+非TLS共13个端口节点<br>2、当前workers域名作为订阅链接，需通过代理进行订阅更新<br>3、如使用的客户端不支持分片功能，则TLS节点不可用</p>
+              <hr>
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>聚合通用分享链接 (可直接导入客户端)：</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <td><button class="btn btn-primary" onclick="copyToClipboard('${wk\u0076\u006c\u0065\u0073\u0073share}')">点击复制链接</button></td>
+                      </tr>
+                  </tbody>
+              </table>
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>聚合通用订阅链接：</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <td class="limited-width">${ty}</td>
+                          <td><button class="btn btn-primary" onclick="copyToClipboard('${ty}')">点击复制链接</button></td>
+                      </tr>
+                  </tbody>
+              </table>
+              <br>
+              <br>
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>Clash-meta订阅链接：</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <td class="limited-width">${cl}</td>
+                          <td><button class="btn btn-primary" onclick="copyToClipboard('${cl}')">点击复制链接</button></td>
+                      </tr>
+                  </tbody>
+              </table>
+              <br>
+              <br>
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>Sing-box订阅链接：</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <td class="limited-width">${sb}</td>
+                          <td><button class="btn btn-primary" onclick="copyToClipboard('${sb}')">点击复制链接</button></td>
+                      </tr>
+                  </tbody>
+              </table>
+              <hr>
+              <hr>
+              <hr>
+              <h3>4：聚合通用、Clash-meta、Sing-box订阅链接如下(优选):</h3>
+              <hr>
+              <p>注意：<br>1、默认每个订阅链接包含TLS+非TLS共13个端口节点<br>2、当前workers域名作为订阅链接，需通过代理进行订阅更新<br>3、如使用的客户端不支持分片功能，则TLS节点不可用</p>
+              <hr>
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>聚合通用分享链接 (可直接导入客户端)：</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <td><button class="btn btn-primary" onclick="copyToClipboard('${pg\u0076\u006c\u0065\u0073\u0073share}')">点击复制链接</button></td>
+                      </tr>
+                  </tbody>
+              </table>
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>聚合通用订阅链接：</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <td class="limited-width">${pty}</td>
+                          <td><button class="btn btn-primary" onclick="copyToClipboard('${pty}')">点击复制链接</button></td>
+                      </tr>
+                  </tbody>
+              </table>
+              <br>
+              <br>
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>Clash-meta订阅链接：</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <td class="limited-width">${pcl}</td>
+                          <td><button class="btn btn-primary" onclick="copyToClipboard('${pcl}')">点击复制链接</button></td>
+                      </tr>
+                  </tbody>
+              </table>
+              <br>
+              <br>
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>Sing-box订阅链接：</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <td class="limited-width">${psb}</td>
+                          <td><button class="btn btn-primary" onclick="copyToClipboard('${psb}')">点击复制链接</button></td>
+                      </tr>
+                  </tbody>
+              </table>
+              <hr>
+              <hr>
+              <hr>
+              <p>技术支持：<br>
+                  <a href="https://ygkkk.blogspot.com" target="_blank">甬哥博客地址</a><br>
+                  <a href="https://www.youtube.com/@ygkkk\n甬哥TG电报群组：https://t.me/ygkkktg\n甬哥TG电报频道：https://t.me/ygkkktgpd\n\nProxyIP使用nat64自动生成，无需设置" target="_blank">甬哥YouTube频道</a>
+              </p>
+          </div>
+      </div>
+  </div>
+  </body>
+  </html>
+  `;
 }
 }
